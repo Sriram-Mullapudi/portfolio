@@ -195,7 +195,7 @@ html.tab-paused .plate-flow path,html.tab-paused .arch-node:before{animation-pla
 @media(max-width:520px){#hero .hero-grid{min-height:735px}#hero .hero-portrait{height:370px;bottom:98px;left:3%;width:94%}#hero .hero-backdrop{top:290px}#hero .hero-links{padding-bottom:12px}#hero .hero-summary{max-width:34ch}}
 </style><style id="final-craft-style">
 html{scroll-padding-top:90px}.selected-strip{padding-block:40px 48px}.selected-grid{gap:28px}.selected-card{position:relative}.selected-card h3{display:flex;align-items:center;justify-content:space-between;font-size:20px;letter-spacing:-.025em}.selected-art{height:210px;padding:18px 12px;background:radial-gradient(ellipse at 50% 120%,#66162636,transparent 70%),#10141a;border-radius:8px}.selected-art .system-plate{padding:0!important;min-height:0!important}.selected-art .system-plate svg{display:block!important;width:100%;height:auto;max-height:170px}.selected-art .plate-mobile{display:none!important}.selected-art .plate-labels text{font-size:13px!important}.selected-art .plate-labels .minor{font-size:10px!important}.selected-card:after{content:'Read case study ↗';display:block;margin-top:14px;color:#e88a8d;font:11px var(--mono);transition:translate .2s}.selected-card:hover:after{translate:3px 0}.selected-card p{line-height:1.7}.selected-card .selected-proof{color:#bdc5cd;font:11px/1.7 var(--mono);margin-top:10px;border-top:1px solid #ffffff12;padding-top:10px}a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid #ed9298;outline-offset:5px}.hero-aside>p{color:#dc9a9d}.hero-aside li{color:#c7cbd2}#hero .hero-thesis{color:#e9949b}.selected-card:hover .plate-flow{opacity:1}.selected-card:hover .plate-flow path{stroke-dasharray:7 12;animation:preview-flow 1.6s linear 2}@keyframes preview-flow{to{stroke-dashoffset:-38}}@media(max-width:520px){.selected-art{height:155px;padding:10px}.selected-card h3{font-size:19px}.selected-grid{gap:32px}.selected-strip{padding-block:28px 35px}.selected-art .plate-labels text{font-size:15px!important}.selected-art .plate-labels .minor{display:none}}@media(prefers-reduced-motion:reduce){.selected-card:hover .plate-flow path{animation:none}.selected-card:after{transition:none}}
-</style></head><body><svg aria-hidden="true" height="0" style="position:absolute" width="0"><defs><clippath clipPathUnits="objectBoundingBox" id="portrait-outline"><path d="M.247 .231 C.237 .18 .269 .117 .326 .093 C.37 .053 .47 .048 .54 .06 C.61 .059 .675 .095 .694 .15 C.712 .193 .696 .246 .685 .286 C.693 .318 .676 .365 .659 .377 C.648 .423 .617 .461 .602 .477 L.612 .513 C.70 .535 .79 .574 .87 .609 Q.94 .643 1 .672 L1 1 L0 1 L0 .683 Q.07 .639 .15 .61 Q.24 .567 .345 .526 L.357 .465 C.323 .442 .301 .405 .294 .366 Q.269 .348 .277 .298 Q.252 .27 .247 .231Z"></path></clippath></defs></svg>
+</style><link rel="stylesheet" href="portfolio-v3-assets/ui-craft.css"/></head><body><svg aria-hidden="true" height="0" style="position:absolute" width="0"><defs><clippath clipPathUnits="objectBoundingBox" id="portrait-outline"><path d="M.247 .231 C.237 .18 .269 .117 .326 .093 C.37 .053 .47 .048 .54 .06 C.61 .059 .675 .095 .694 .15 C.712 .193 .696 .246 .685 .286 C.693 .318 .676 .365 .659 .377 C.648 .423 .617 .461 .602 .477 L.612 .513 C.70 .535 .79 .574 .87 .609 Q.94 .643 1 .672 L1 1 L0 1 L0 .683 Q.07 .639 .15 .61 Q.24 .567 .345 .526 L.357 .465 C.323 .442 .301 .405 .294 .366 Q.269 .348 .277 .298 Q.252 .27 .247 .231Z"></path></clippath></defs></svg>
 <a class="skip" href="#main">Skip to content</a>
 <nav aria-label="Primary" class="nav"><div class="wrap nav-inner">
 <a aria-label="SM /// — Sriram Mullapudi home" class="mark" href="#hero">SM <span>///</span></a>
@@ -259,23 +259,24 @@ $('#year').textContent=new Date().getFullYear();
 // Native dialog state, including focus restoration and explicit touch controls.
 const openers=new WeakMap();
 function openDialog(dialog){if(dialog.open)return;openers.set(dialog,document.activeElement);dialog.showModal();document.body.classList.add('locked')}
-function closeDialog(dialog){dialog.close()}
+const closingDialogs=new WeakSet();
+function closeDialog(dialog){if(!dialog.open||closingDialogs.has(dialog))return;if(motion.matches||document.hidden){dialog.close();return}closingDialogs.add(dialog);const exit=dialog.animate([{opacity:1,translate:'0 0'},{opacity:0,translate:'0 5px'}],{duration:140,easing:'ease-in'});exit.finished.catch(()=>{}).finally(()=>{closingDialogs.delete(dialog);if(dialog.open)dialog.close()})}
 $$('dialog').forEach(dialog=>{
   $('[data-close]',dialog).addEventListener('click',()=>closeDialog(dialog));
+  dialog.addEventListener('cancel',e=>{e.preventDefault();closeDialog(dialog)});
   dialog.addEventListener('close',()=>{if(!$$('dialog[open]').length)document.body.classList.remove('locked');const opener=openers.get(dialog);if(opener?.isConnected)opener.focus({preventScroll:true});});
   dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog(dialog)});
 });
 const menu=$('#menu-dialog');
 $('#menu-open').addEventListener('click',()=>openDialog(menu));
-$$('a[href^="#"]',menu).forEach(a=>a.addEventListener('click',()=>closeDialog(menu)));
+$$('a[href^="#"]',menu).forEach(a=>a.addEventListener('click',()=>{menu.addEventListener('close',()=>requestAnimationFrame(()=>{const target=document.querySelector(a.hash);target?.focus({preventScroll:true})}),{once:true});closeDialog(menu)}));
 matchMedia('(min-width:821px)').addEventListener('change',e=>{if(e.matches&&menu.open)closeDialog(menu)});
 // Headings receive focus after in-page navigation, so keyboard reading continues there.
 $$('a[href^="#"]').forEach(a=>a.addEventListener('click',()=>{const el=document.getElementById(a.hash.slice(1));if(!el)return;el.setAttribute('tabindex','-1');requestAnimationFrame(()=>el.focus({preventScroll:true}))}));
 if('IntersectionObserver' in window){
   const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in-view');observer.unobserve(e.target)}}),{threshold:.08});
   $$('.chapter').forEach(el=>observer.observe(el));
-  const spy=new IntersectionObserver(entries=>entries.forEach(e=>{if(!e.isIntersecting)return;$$('.nav-links a').forEach(a=>{if(a.hash==='#'+e.target.id)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}),{rootMargin:'-20% 0px -60% 0px'});
-  $$('section[id],footer[id]').forEach(el=>spy.observe(el));
+
 }
 
 // Payment trace is a deliberately labelled conceptual example, never live data.
@@ -284,7 +285,7 @@ async function runTrace(retry){
  const current=++traceGeneration,buttons=[$('#trace-run'),$('#trace-retry')],nodes=$$('#trace-flow li'),log=$('#trace-log');
  buttons.forEach(b=>b.disabled=true);nodes.forEach(n=>n.classList.remove('active'));log.textContent='';
  const lines=retry?['01 Request received.','02 Validate and route.','03 Publish event to Kafka.','04 Example: consumer times out. Retry with the same operation identifier.','05 Example: check for prior processing before applying the result.']:['01 Request received.','02 Validate and route.','03 Publish event to Kafka.','04 Consumer processes the event.','05 Processing complete.'];
- try{for(let i=0;i<lines.length;i++){if(current!==traceGeneration)return;nodes[i].classList.add('active');log.textContent=lines.slice(Math.max(0,i-2),i+1).join('\n');log.style.whiteSpace='pre-line';if(!motion.matches)await new Promise(r=>setTimeout(r,650));}}finally{buttons.forEach(b=>b.disabled=false)}
+ try{for(let i=0;i<lines.length;i++){if(current!==traceGeneration)return;nodes[i].classList.add('active');log.textContent=lines.slice(Math.max(0,i-2),i+1).join('\n');log.style.whiteSpace='pre-line';if(!motion.matches)await new Promise(r=>setTimeout(r,650));}}finally{if(current===traceGeneration)buttons.forEach(b=>b.disabled=false)}
 }
 $('#trace-run').addEventListener('click',()=>runTrace(false));$('#trace-retry').addEventListener('click',()=>runTrace(true));
 
@@ -367,9 +368,18 @@ if(location.hash==='#terminal')openTerminal();
  const fine=matchMedia('(hover:hover) and (pointer:fine)'),active=new Set();
  function animate(el,frames,opts={}){if(!el||motion.matches||document.hidden)return;const a=el.animate(frames,{duration:1000,easing:'cubic-bezier(.16,1,.3,1)',...opts});active.add(a);a.finished.catch(()=>{}).finally(()=>active.delete(a));return a}
  const photo=$('.hero-portrait img');
- function entrance(){animate($('.hero-copy'),[{opacity:0,transform:'translateY(24px)'},{opacity:1,transform:'none'}],{duration:950});animate(photo,[{clipPath:'inset(0 0 100% 0)',transform:'scale(1.045)'},{clipPath:'inset(0)',transform:'scale(1)'}],{duration:1250});animate($('.hero-links'),[{opacity:0,transform:'translateY(12px)'},{opacity:1,transform:'none'}],{duration:850,delay:200,fill:'backwards'})}
- if(photo.complete)entrance();else photo.addEventListener('load',entrance,{once:true});
- const frame=$('.portrait-window');frame.addEventListener('pointermove',e=>{return;const r=frame.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;photo.style.transform=`rotateY(${x*3}deg) rotateX(${-y*3}deg)`});function reset(){photo.style.transform=''}frame.addEventListener('pointerleave',reset);
+ function entrance(){
+  const lift=[{opacity:0,translate:'0 10px'},{opacity:1,translate:'0 0'}];
+  animate($('.hero-copy .eyebrow'),lift,{duration:450,delay:60,fill:'backwards'});
+  animate($('.hero-copy .name'),lift,{duration:650,delay:110,fill:'backwards'});
+  animate($('.hero-copy .hero-role'),lift,{duration:550,delay:180,fill:'backwards'});
+  animate($('.hero-copy .hero-thesis'),lift,{duration:550,delay:220,fill:'backwards'});
+  animate($('.hero-copy .hero-summary'),lift,{duration:550,delay:250,fill:'backwards'});
+  animate(photo,[{opacity:0,translate:'-50% 12px',scale:'1.015'},{opacity:1,translate:'-50% 0',scale:'1'}],{duration:850,delay:180,fill:'backwards'});
+  animate($('.hero-links'),lift,{duration:550,delay:350,fill:'backwards'});
+ }
+ entrance();
+ const frame=$('.portrait-window');function reset(){photo.style.transform=''}frame.addEventListener('pointerleave',reset);
  // The diagram reflects the actual state of the existing conceptual payment trace.
  const scene=$('.event-scene'),nodes=$$('.event-node',scene);new MutationObserver(()=>{const steps=$$('#trace-flow li.active');scene.classList.toggle('is-tracing',steps.length>0&&steps.length<5);nodes.forEach((n,i)=>n.classList.toggle('is-active',i<steps.length));}).observe($('#trace-flow'),{subtree:true,attributes:true,attributeFilter:['class']});
  const explanations=[[
@@ -402,7 +412,7 @@ if(location.hash==='#terminal')openTerminal();
 (()=>{
  const reduce=matchMedia('(prefers-reduced-motion:reduce)'),pending=new Set();
  function reveal(el,frames,options={}){if(reduce.matches||document.hidden||!el)return;const a=el.animate(frames,{duration:1000,easing:'cubic-bezier(.16,1,.3,1)',...options});pending.add(a);a.finished.catch(()=>{}).finally(()=>pending.delete(a))}
- reveal(document.querySelector('.hero-backdrop'),[{opacity:.15,transform:'translateY(22px)',clipPath:'inset(25% 0 0)'},{opacity:1,transform:'none',clipPath:'inset(0)'}],{duration:1200});
+ reveal(document.querySelector('.hero-backdrop'),[{opacity:.15,translate:'0 8px'},{opacity:1,translate:'0 0'}],{duration:750});
  document.querySelectorAll('.hero-aside li').forEach((el,i)=>reveal(el,[{opacity:0,transform:'translateY(9px)'},{opacity:1,transform:'none'}],{delay:350+i*100,duration:700,fill:'backwards'}));
  // Opening a project initiates one walkthrough only when the diagram is visible.
  const played=new WeakSet();
@@ -432,4 +442,4 @@ if(location.hash==='#terminal')openTerminal();
  button.addEventListener('click',()=>playing?stop():play());new IntersectionObserver(es=>{visible=es[0].isIntersecting;if(!visible)stop();else if(!started&&!reduce.matches){started=true;play()}},{threshold:.35}).observe(root);
  new ResizeObserver(resize).observe(canvas);reduce.addEventListener('change',()=>{stop();button.disabled=reduce.matches;draw()});document.addEventListener('visibilitychange',()=>{if(document.hidden)stop()});button.disabled=reduce.matches;stop();resize();
 })();
-</script><script>(()=>{const scene=document.querySelector('.night-scene'),button=scene.querySelector('button'),reduce=matchMedia('(prefers-reduced-motion:reduce)');let visible=false,paused=false;function sync(){scene.classList.toggle('scene-paused',paused||!visible||document.hidden||reduce.matches);button.textContent=reduce.matches?'Still scene':paused?'Play scene ▷':'Pause scene Ⅱ';button.disabled=reduce.matches;button.setAttribute('aria-pressed',String(paused))}button.addEventListener('click',()=>{paused=!paused;sync()});new IntersectionObserver(e=>{visible=e[0].isIntersecting;sync()}).observe(scene);document.addEventListener('visibilitychange',sync);reduce.addEventListener('change',sync);sync()})();</script><script>(()=>{const hero=document.querySelector('#hero'),portrait=hero.querySelector('.hero-portrait'),reduce=matchMedia('(prefers-reduced-motion:reduce)');let visible=true;function reset(){portrait.style.setProperty('--portrait-x','0px');portrait.style.setProperty('--portrait-y','0px')}hero.addEventListener('pointermove',e=>{if(reduce.matches||e.pointerType!=='mouse')return;const r=hero.getBoundingClientRect();portrait.style.setProperty('--portrait-x',((e.clientX-r.left)/r.width-.5)*9+'px');portrait.style.setProperty('--portrait-y',((e.clientY-r.top)/r.height-.5)*6+'px')});hero.addEventListener('pointerleave',reset);function sync(){portrait.classList.toggle('avatar-paused',!visible||document.hidden||reduce.matches);if(reduce.matches)reset()}new IntersectionObserver(e=>{visible=e[0].isIntersecting;sync()}).observe(hero);document.addEventListener('visibilitychange',sync);reduce.addEventListener('change',sync);sync()})();</script><script>document.querySelectorAll('.selected-card').forEach(link=>link.addEventListener('click',()=>{const target=document.querySelector(link.getAttribute('href'));if(target&&target.tagName==='DETAILS'){target.open=true;const summary=target.querySelector('summary');requestAnimationFrame(()=>summary.focus({preventScroll:true}))}}));</script></body></html>
+</script><script>(()=>{const scene=document.querySelector('.night-scene'),button=scene.querySelector('button'),reduce=matchMedia('(prefers-reduced-motion:reduce)');let visible=false,paused=false;function sync(){scene.classList.toggle('scene-paused',paused||!visible||document.hidden||reduce.matches);button.textContent=reduce.matches?'Still scene':paused?'Play scene ▷':'Pause scene Ⅱ';button.disabled=reduce.matches;button.setAttribute('aria-pressed',String(paused))}button.addEventListener('click',()=>{paused=!paused;sync()});new IntersectionObserver(e=>{visible=e[0].isIntersecting;sync()}).observe(scene);document.addEventListener('visibilitychange',sync);reduce.addEventListener('change',sync);sync()})();</script><script>(()=>{const hero=document.querySelector('#hero'),portrait=hero.querySelector('.hero-portrait'),reduce=matchMedia('(prefers-reduced-motion:reduce)');let visible=true;function reset(){portrait.style.setProperty('--portrait-x','0px');portrait.style.setProperty('--portrait-y','0px');hero.style.setProperty('--hero-type-x','0px');hero.style.setProperty('--hero-type-y','0px')}hero.addEventListener('pointermove',e=>{if(reduce.matches||e.pointerType!=='mouse')return;const r=hero.getBoundingClientRect();portrait.style.setProperty('--portrait-x',((e.clientX-r.left)/r.width-.5)*9+'px');portrait.style.setProperty('--portrait-y',((e.clientY-r.top)/r.height-.5)*6+'px');hero.style.setProperty('--hero-type-x',((e.clientX-r.left)/r.width-.5)*-4+'px');hero.style.setProperty('--hero-type-y',((e.clientY-r.top)/r.height-.5)*-3+'px')});hero.addEventListener('pointerleave',reset);function sync(){portrait.classList.toggle('avatar-paused',!visible||document.hidden||reduce.matches);if(reduce.matches)reset()}new IntersectionObserver(e=>{visible=e[0].isIntersecting;sync()}).observe(hero);document.addEventListener('visibilitychange',sync);reduce.addEventListener('change',sync);sync()})();</script><script>document.querySelectorAll('.selected-card').forEach(link=>link.addEventListener('click',()=>{const target=document.querySelector(link.getAttribute('href'));if(target&&target.tagName==='DETAILS'){target.open=true;const summary=target.querySelector('summary');requestAnimationFrame(()=>summary.focus({preventScroll:true}))}}));</script><script src="portfolio-v3-assets/ui-craft.js"></script></body></html>
