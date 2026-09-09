@@ -64,3 +64,14 @@ html{scroll-padding-top:92px}body{font-size:17px;line-height:1.65}.chapter{paddi
 #projects .case .text-link{min-height:44px;display:inline-flex;align-items:center}
 @media(max-width:1100px){#projects .case dl{grid-template-columns:1fr}#projects .case dt{padding:20px 0 6px}#projects .case dd{border:0;padding:0 0 20px}}
 @media(max-width:520px){#projects .case-evidence>div{padding:16px}#projects .plate-proof{grid-template-columns:1fr;gap:8px}#projects .plate-proof span{padding:0;border:0}#projects .case dd.case-priority{font-size:16px}}
+/* Engineer cover: keep primary actions within a comfortable laptop viewport. */
+@media(min-width:1101px){
+ #hero .hero-grid{min-height:clamp(600px,calc(100svh - 145px),740px)}
+ #hero .hero-copy{padding-top:clamp(110px,calc(100svh - 660px),190px)}
+ #hero .name{font-size:clamp(48px,4.6vw,66px)}
+ #hero .hero-backdrop{top:30px;transform:scaleY(1.25)}
+ #hero .hero-links{padding-top:20px;padding-bottom:16px}
+ #hero .social-row{margin-top:12px}
+ #hero .hero-aside{top:clamp(325px,calc(23.75vw + 54px),398px)}
+ #hero .hero-portrait{height:90%}
+}
