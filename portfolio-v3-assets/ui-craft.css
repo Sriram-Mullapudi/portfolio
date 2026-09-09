@@ -38,3 +38,29 @@ html{scroll-padding-top:92px}body{font-size:17px;line-height:1.65}.chapter{paddi
 @media(min-width:1101px){#hero .hero-portrait{height:85%;left:32%;width:45%}.hero-aside{width:15%;right:var(--pad)}#hero .hero-copy{width:32%}}
 @media(min-width:651px) and (max-width:1100px){#hero .hero-portrait{height:78%;right:1%;width:51%}}
 @media(max-width:650px){#hero .portrait-window img{height:94%}}
+/* Case studies: ownership and evidence before implementation detail. */
+#projects .project{scroll-margin-top:96px}
+#projects .project>summary{border-radius:4px}
+#projects .project>summary:focus-visible{outline:2px solid var(--coral);outline-offset:8px}
+#projects .case{gap:clamp(28px,4vw,60px);align-items:start}
+#projects .case dl{margin-top:28px;grid-template-columns:120px minmax(0,1fr);gap:0 24px}
+#projects .case dt{color:var(--ink-muted);letter-spacing:.02em}
+#projects .case dd{color:var(--ink-secondary)}
+#projects .case dt.case-priority{color:var(--coral)}
+#projects .case dd.case-priority{color:var(--ink);font-size:17px;line-height:1.75}
+#projects .case-visual{display:flex;flex-direction:column;gap:28px}
+#projects .case-evidence{margin:0;padding:0;gap:0;border:1px solid var(--border-strong);border-radius:var(--radius-md);overflow:hidden;background:var(--bg-0)}
+#projects .case-evidence>div{padding:20px;min-width:0;border:0}
+#projects .case-evidence>div:nth-child(odd){border-right:1px solid var(--border-quiet)}
+#projects .case-evidence>div:nth-child(-n+2){border-bottom:1px solid var(--border-quiet)}
+#projects .case-evidence strong{display:block;font-size:clamp(27px,3vw,40px);line-height:1.2;letter-spacing:-.04em}
+#projects .case-evidence span{margin-top:8px;font-size:13px;line-height:1.6;color:var(--ink-secondary)}
+#projects .architecture{width:100%;background:var(--bg-0);border-radius:var(--radius-md)}
+#projects .system-plate{background:linear-gradient(145deg,#171e27,#0c1118);border-radius:var(--radius-md)}
+#projects .plate-proof{gap:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));font-size:12px;line-height:1.7}
+#projects .plate-proof span{padding:0 12px;border-left:1px solid var(--border-strong)}
+#projects .plate-proof span:first-child{padding-left:0;border:0}
+#projects .case .actions{gap:16px 28px;flex-wrap:wrap}
+#projects .case .text-link{min-height:44px;display:inline-flex;align-items:center}
+@media(max-width:1100px){#projects .case dl{grid-template-columns:1fr}#projects .case dt{padding:20px 0 6px}#projects .case dd{border:0;padding:0 0 20px}}
+@media(max-width:520px){#projects .case-evidence>div{padding:16px}#projects .plate-proof{grid-template-columns:1fr;gap:8px}#projects .plate-proof span{padding:0;border:0}#projects .case dd.case-priority{font-size:16px}}

@@ -76,3 +76,16 @@ new MutationObserver(()=>{if(q('#toast').hidden)return;if(q('#toast').textConten
 
 // Wrap keyboard focus inside each native dialog without interfering with terminal completion.
 document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('keydown',e=>{if(e.key!=='Tab'||e.defaultPrevented)return;const items=[...dialog.querySelectorAll('a[href],button:not([disabled]),input:not([disabled]),[tabindex="0"]')].filter(el=>el.getClientRects().length&&!el.closest('[hidden]'));if(!items.length){e.preventDefault();return}const first=items[0],last=items[items.length-1];if(e.shiftKey&&(document.activeElement===first||document.activeElement===dialog)){e.preventDefault();last.focus()}else if(!e.shiftKey&&(document.activeElement===last||document.activeElement===dialog)){e.preventDefault();first.focus()}}));
+
+// Shared project URLs open their case study, including browser back/forward navigation.
+(()=>{
+ function openLinkedProject(){
+  const id=location.hash.slice(1);
+  const project=document.getElementById(id);
+  if(!project?.matches('details.project'))return;
+  project.open=true;
+  requestAnimationFrame(()=>project.scrollIntoView({block:'start',behavior:'instant'}));
+ }
+ addEventListener('hashchange',openLinkedProject);
+ openLinkedProject();
+})();
