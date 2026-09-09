@@ -32,3 +32,9 @@ html{scroll-padding-top:92px}body{font-size:17px;line-height:1.65}.chapter{paddi
 /* Keep the image box at its intrinsic ratio so the silhouette never shifts with letterboxing. */
 #hero .portrait-window img{width:auto;height:100%;max-width:none;aspect-ratio:1122/1402;left:50%;translate:-50% 0;object-fit:fill}
 @media(prefers-reduced-motion:reduce){#hero .portrait-window img{translate:-50% 0!important}}
+
+/* Portrait finishing: quieter scale and a soft shoulder-to-background transition. */
+#hero .portrait-window img{mask-image:linear-gradient(to bottom,#000 74%,transparent 100%),linear-gradient(to right,transparent 0%,#000 9%,#000 91%,transparent 100%);mask-composite:intersect}
+@media(min-width:1101px){#hero .hero-portrait{height:85%;left:32%;width:45%}.hero-aside{width:15%;right:var(--pad)}#hero .hero-copy{width:32%}}
+@media(min-width:651px) and (max-width:1100px){#hero .hero-portrait{height:78%;right:1%;width:51%}}
+@media(max-width:650px){#hero .portrait-window img{height:94%}}
