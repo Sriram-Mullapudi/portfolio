@@ -78,3 +78,14 @@ html{scroll-padding-top:92px}body{font-size:17px;line-height:1.65}.chapter{paddi
 
 /* The editorial portrait has its own alpha silhouette; do not crop it to the old face outline. */
 #hero .portrait-window img{clip-path:none}
+
+/* Original companion: muted colors match the woodland footer. */
+.wood-companion .companion-dance{transform-origin:752px 261px;animation:companion-bounce 1.2s ease-in-out infinite}
+.companion-torso{transform-origin:750px 202px;animation:companion-sway 1.2s ease-in-out infinite alternate}
+.companion-arm-left{transform-origin:734px 145px;animation:companion-wave .6s ease-in-out infinite alternate}
+.companion-arm-right{transform-origin:764px 140px;animation:companion-wave .6s ease-in-out -.3s infinite alternate-reverse}
+@keyframes companion-bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+@keyframes companion-sway{from{transform:rotate(-4deg)}to{transform:rotate(4deg)}}
+@keyframes companion-wave{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
+@media(max-width:600px){.night-scene svg{width:180%;margin-left:-40%}}
+@media(prefers-reduced-motion:reduce){.wood-companion *{animation:none!important}}
