@@ -89,3 +89,21 @@ html{scroll-padding-top:92px}body{font-size:17px;line-height:1.65}.chapter{paddi
 @keyframes companion-wave{from{transform:rotate(-8deg)}to{transform:rotate(8deg)}}
 @media(max-width:600px){.night-scene svg{width:180%;margin-left:-40%}}
 @media(prefers-reduced-motion:reduce){.wood-companion *{animation:none!important}}
+
+/* Woodland choreography: ambient wind, footsteps, dancing and drifting lights. */
+.wood-trees path{transform-box:fill-box;transform-origin:50% 100%;animation:wood-wind 4s ease-in-out infinite alternate}
+.wood-trees path:nth-child(2){animation-duration:5.2s;animation-delay:-2s}
+.wood-ground path:first-child{transform-box:fill-box;transform-origin:50% 100%;animation:wood-wind 2s ease-in-out infinite alternate-reverse}
+.wood-ground path:last-child{animation:stone-light 5s ease-in-out infinite alternate}
+.wood-shadow{transform-box:fill-box;transform-origin:center;animation:wood-shadow 1.2s ease-in-out infinite}
+.night-scene .wood-squirrel{animation:squirrel-scamper 2.4s ease-in-out infinite}
+.night-scene .squirrel-tail{animation-duration:.8s}
+.explorer-upper{transform-origin:597px 213px;animation:explorer-rock 1.2s ease-in-out infinite}
+.companion-legs{transform-origin:752px 201px;animation:companion-shuffle .6s ease-in-out infinite alternate}
+@keyframes wood-wind{from{transform:skewX(-1.5deg) rotate(-1deg)}to{transform:skewX(1.5deg) rotate(1deg)}}
+@keyframes stone-light{from{opacity:.65}to{opacity:1}}
+@keyframes wood-shadow{50%{transform:scaleX(.97);opacity:.7}}
+@keyframes squirrel-scamper{0%,100%{transform:translate(0,0)}25%{transform:translate(8px,-4px)}50%{transform:translate(16px,0)}75%{transform:translate(8px,-4px)}}
+@keyframes explorer-rock{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+@keyframes companion-shuffle{from{transform:skewX(-3deg)}to{transform:skewX(3deg)}}
+@media(prefers-reduced-motion:reduce){.night-scene *{animation:none!important}}
