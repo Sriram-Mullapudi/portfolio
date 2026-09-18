@@ -75,3 +75,6 @@ html{scroll-padding-top:92px}body{font-size:17px;line-height:1.65}.chapter{paddi
  #hero .hero-aside{top:clamp(325px,calc(23.75vw + 54px),398px)}
  #hero .hero-portrait{height:90%}
 }
+
+/* The editorial portrait has its own alpha silhouette; do not crop it to the old face outline. */
+#hero .portrait-window img{clip-path:none}
