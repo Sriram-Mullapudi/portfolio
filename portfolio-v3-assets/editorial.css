@@ -1,0 +1,47 @@
+/* A single editorial direction: charcoal, warm paper, burgundy, measured contrast. */
+:root{--retrieval:#e6a2ab;--integrity:#d8bd91}
+#hero .hero-aside li{padding-block:18px;border-bottom-color:#ffffff16}
+#hero .hero-summary{max-width:33ch;line-height:1.8}
+.selected-strip{padding-top:48px;padding-bottom:64px}
+.selected-heading{margin-bottom:30px}
+.selected-strip .selected-card{position:relative;overflow:hidden;padding:32px;background:#101218;border-top:2px solid var(--project-accent,var(--coral));border-radius:0}
+.selected-card[data-system=retrieval]{--project-accent:var(--retrieval);background:radial-gradient(ellipse at 100% 0,#59202f38,transparent 65%),#101218}
+.selected-card[data-system=integrity]{--project-accent:var(--integrity);background:radial-gradient(ellipse at 100% 0,#54412730,transparent 65%),#101218}
+.selected-card .work-meta,.selected-card .work-result strong>span,.selected-card .work-bottom>span:last-child{color:var(--project-accent)}
+.selected-strip .selected-card .work-thesis{margin-top:24px;font-size:18px;line-height:1.5;max-width:30ch;color:var(--ink);letter-spacing:-.025em}
+.work-result{margin:28px 0 32px}
+.selected-strip .selected-card:hover{border-color:var(--project-accent);background-color:#17171e}
+.selected-strip .selected-card:focus-visible{outline:2px solid var(--project-accent);outline-offset:5px}
+#projects{background:linear-gradient(180deg,#10141b,#0c1016)}
+#knowledge-search{--project-accent:var(--retrieval)}
+#speedway-pos{--project-accent:var(--integrity)}
+.project{padding-block:40px;border-top-color:#ffffff26}
+.project[open]{border-top-color:var(--project-accent)}
+.project .project-num,.project .case-link{color:var(--project-accent)}
+.project>summary h3{letter-spacing:-.045em;line-height:1.13}
+.project .plate-top>span:first-child{color:var(--project-accent)}
+.project .system-plate{background:linear-gradient(135deg,#161922,#0e1219);border-top:2px solid var(--project-accent)}
+.decision-brief{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;margin-top:36px;border-block:1px solid #ffffff1c;background:#ffffff03}
+.decision-brief>div{padding:24px;border-right:1px solid #ffffff14}
+.decision-brief>div:last-child{border-right:0}
+.decision-brief span{font:11px/1.6 monospace;text-transform:uppercase;letter-spacing:.12em;color:var(--project-accent)}
+.decision-brief p{font-size:15px;line-height:1.7;margin:12px 0 0;color:var(--ink-secondary)}
+.project .case{padding-top:40px}
+.case dt{letter-spacing:.08em;color:var(--project-accent)}
+.case dd{line-height:1.85}
+.project .architecture{border-color:#ffffff24;background:#0d1118}
+.walkthrough-stages{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:24px}
+.walkthrough-stages button{font:11px/1.5 monospace;min-height:44px;padding:12px 10px;border:1px solid #ffffff24;background:transparent;color:var(--ink-secondary);text-align:left;cursor:pointer;transition:background .18s,border-color .18s}
+.walkthrough-stages button:hover{border-color:var(--project-accent)}
+.walkthrough-stages button[aria-pressed=true]{background:#ffffff09;border-color:var(--project-accent);color:var(--project-accent)}
+.walkthrough-stages button:focus-visible{outline:2px solid var(--project-accent);outline-offset:3px}
+.architecture-controls{margin-top:16px;padding-top:16px}
+.project .diagram-play{border-color:var(--project-accent);color:var(--project-accent)}
+.project .diagram-caption{border-left:2px solid var(--project-accent);padding-left:16px;line-height:1.8!important}
+.job{border-top-color:#ffffff21}.job-main .lead{max-width:45ch;font-size:clamp(19px,1.8vw,25px);letter-spacing:-.025em}
+.section-head>p{color:var(--ink-muted)}
+.contact-grid{padding-bottom:30px}.contact-copy{max-width:40ch;line-height:1.8}
+.night-scene{border-top-color:#ffffff08}
+@media(min-width:1100px){.project .case-visual{align-self:start;position:sticky;top:105px}}
+@media(max-width:700px){.selected-strip .selected-card{padding:24px}.decision-brief{grid-template-columns:1fr;margin-top:24px}.decision-brief>div{padding:20px;border-right:0;border-bottom:1px solid #ffffff14}.decision-brief>div:last-child{border-bottom:0}.project{padding-block:28px}.selected-strip{padding-block:30px 40px}.selected-strip .selected-card .work-thesis{font-size:17px}.work-result{margin-block:24px}}
+@media(prefers-reduced-motion:reduce){.walkthrough-stages button{transition:none}}
