@@ -397,12 +397,13 @@ if(location.hash==='#terminal')openTerminal();
  $$('.architecture').forEach((arch,index)=>{const button=$('.diagram-play',arch),caption=$('.diagram-caption',arch),all=$$('.arch-node',arch),groups=index===0?[[all[0]],[all[1],all[2]],[all[3]],[all[4]]]:all.map(n=>[n]);let timer=0,step=-1;
   const stageBar=document.createElement('div');stageBar.className='walkthrough-stages';stageBar.setAttribute('role','group');stageBar.setAttribute('aria-label','Choose an architecture stage');
   const labels=index===0?['Query','Retrieve','Rank','Answer']:['Interface','Application','Transaction'];
-  const stageButtons=labels.map((label,i)=>{const b=document.createElement('button');b.type='button';b.textContent=String(i+1).padStart(2,'0')+' / '+label;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>{stop();step=i;show();button.textContent=index===0?'Replay query →':'Replay sale →'});stageBar.append(b);return b});
+  const stageButtons=labels.map((label,i)=>{const b=document.createElement('button');b.type='button';b.textContent=String(i+1).padStart(2,'0')+' / '+label;b.setAttribute('aria-pressed','false');b.addEventListener('click',()=>{stop();step=i;show();updatePlaybackLabel()});stageBar.append(b);return b});
   arch.querySelector('.architecture-controls').before(stageBar);
-  function stop(){clearTimeout(timer);timer=0;arch.classList.remove('diagram-running');if(step<0)return;button.textContent=index===0?'Replay query →':'Replay sale →';button.disabled=false}
+  function updatePlaybackLabel(){button.textContent=motion.matches?'Next stage →':step<groups.length-1?'Resume walkthrough →':index===0?'Replay query →':'Replay sale →'}
+  function stop(){clearTimeout(timer);timer=0;arch.classList.remove('diagram-running');if(step<0)return;updatePlaybackLabel();button.disabled=false}
   function show(){stageButtons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===step)));all.forEach(n=>n.classList.remove('diagram-active'));groups[step].forEach(n=>n.classList.add('diagram-active'));caption.textContent=explanations[index][step]}
   function next(){if(document.hidden||!arch.closest('details').open){stop();return}step++;show();if(step<groups.length-1)timer=setTimeout(next,1450);else stop()}
-  button.addEventListener('click',()=>{if(timer){stop();return}if(motion.matches){step=(step+1)%groups.length;show();button.textContent='Next stage →';return}step=-1;button.textContent='Pause walkthrough Ⅱ';arch.classList.add('diagram-running');next()});
+  button.addEventListener('click',()=>{if(timer){stop();return}if(motion.matches){step=(step+1)%groups.length;show();button.textContent='Next stage →';return}if(step>=groups.length-1)step=-1;button.textContent='Pause walkthrough Ⅱ';arch.classList.add('diagram-running');next()});
   arch.closest('details').addEventListener('toggle',()=>{if(!arch.closest('details').open)stop()});
   const io=new IntersectionObserver(es=>{if(!es[0].isIntersecting)stop()},{threshold:0});io.observe(arch);controls.push(stop);
  });
