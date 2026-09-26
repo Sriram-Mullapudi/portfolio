@@ -307,7 +307,11 @@ photoImage.addEventListener('error',()=>{photoImage.hidden=true;$('#photo-error'
 film.addEventListener('click',e=>{const frame=e.target.closest('[data-photo]');if(!frame)return;paintPhoto(Number(frame.dataset.photo));openDialog(viewer)});
 $('#photo-prev').addEventListener('click',()=>stepPhoto(-1));$('#photo-next').addEventListener('click',()=>stepPhoto(1));
 viewer.addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;if(e.key==='ArrowLeft'||e.key==='ArrowRight'){e.preventDefault();stepPhoto(e.key==='ArrowLeft'?-1:1)}else if(e.key==='Home'||e.key==='End'){e.preventDefault();paintPhoto(e.key==='Home'?photoOrder[0]:photoOrder[photoOrder.length-1])}});
-let touchStart=null;$('#lightbox-stage').addEventListener('touchstart',e=>{touchStart=e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null},{passive:true});$('#lightbox-stage').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].clientX-touchStart.x,dy=e.changedTouches[0].clientY-touchStart.y;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy))stepPhoto(dx<0?1:-1);touchStart=null},{passive:true});
+let touchStart=null;
+// Interrupted gestures must not carry into the next swipe or viewer session.
+$('#lightbox-stage').addEventListener('touchcancel',()=>{touchStart=null},{passive:true});
+viewer.addEventListener('close',()=>{touchStart=null});
+$('#lightbox-stage').addEventListener('touchstart',e=>{touchStart=e.touches.length===1?{x:e.touches[0].clientX,y:e.touches[0].clientY}:null},{passive:true});$('#lightbox-stage').addEventListener('touchend',e=>{if(!touchStart)return;const dx=e.changedTouches[0].clientX-touchStart.x,dy=e.changedTouches[0].clientY-touchStart.y;if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy))stepPhoto(dx<0?1:-1);touchStart=null},{passive:true});
 
 // Terminal shares the page's factual story; no command interprets HTML or executes code.
 const terminal=$('#terminal'),termBody=$('#term-body'),input=$('#term-input'),commandHistory=[];let historyIndex=0;
