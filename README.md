@@ -40,3 +40,23 @@ Keep `portfolio-v3-assets/` beside `index.html`. The page uses local fonts, lazy
 ## Assets
 
 Personal photographs and portfolio content belong to Sriram Mullapudi. Font license notices are included in `portfolio-v3-assets/FONT-LICENSES.txt`.
+
+## Keyboard controls
+
+| Context | Keys | Action |
+| --- | --- | --- |
+| Page, outside text inputs and dialogs | `T` | Open the portfolio terminal |
+| Page, outside text inputs and dialogs | `G` | Return to the top |
+| Photo viewer | Left / Right arrow | Previous / next photo |
+| Photo viewer | Home / End | First / last photo |
+| Any dialog | Escape | Close and return focus to its opener |
+| Terminal input | Up / Down arrow | Browse command history; Down restores your unfinished draft |
+| Terminal input | Tab | Complete a command or list matching commands |
+
+In the terminal, `help` lists commands and `exit` closes the dialog. Consecutive
+identical commands occupy one history entry. History is kept only in the current
+page session; reloading clears it.
+
+Use Tab and Shift+Tab to reach buttons and links. Architecture stage buttons can
+be activated with Enter or Space. The walkthrough can be paused and resumed;
+with reduced motion enabled, its main control advances one stage at a time.
