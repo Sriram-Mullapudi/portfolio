@@ -336,7 +336,7 @@ const commands={
  ls:()=> 'work/  projects/  stack/  life/  contact/',
  clear:()=>{termBody.replaceChildren();return ''},exit:()=>{terminal.close();return ''}
 };commands.stack=commands.skills;
-function runCommand(raw){const line=raw.trim().slice(0,500);if(!line)return;print('➜ ~ '+line,'command');commandHistory.push(line);if(commandHistory.length>100)commandHistory.shift();historyIndex=commandHistory.length;historyDraft='';const [name,...args]=line.split(/\s+/);const result=Object.hasOwn(commands,name.toLowerCase())?commands[name.toLowerCase()](args):`Command not found: ${name}. Type help.`;if(result)print(result);}
+function runCommand(raw){const line=raw.trim().slice(0,500);if(!line)return;print('➜ ~ '+line,'command');if(commandHistory[commandHistory.length-1]!==line)commandHistory.push(line);if(commandHistory.length>100)commandHistory.shift();historyIndex=commandHistory.length;historyDraft='';const [name,...args]=line.split(/\s+/);const result=Object.hasOwn(commands,name.toLowerCase())?commands[name.toLowerCase()](args):`Command not found: ${name}. Type help.`;if(result)print(result);}
 $$('[data-terminal]').forEach(b=>b.addEventListener('click',openTerminal));$('#menu-terminal').addEventListener('click',()=>{menu.close();openTerminal()});
 $('#term-form').addEventListener('submit',e=>{e.preventDefault();runCommand(input.value);input.value=''});
 $$('[data-command]').forEach(b=>b.addEventListener('click',()=>{runCommand(b.dataset.command);if(terminal.open)input.focus()}));
