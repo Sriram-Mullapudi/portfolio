@@ -201,7 +201,7 @@ html{scroll-padding-top:90px}.selected-strip{padding-block:40px 48px}.selected-g
 <nav aria-label="Primary" class="nav"><div class="wrap nav-inner">
 <a aria-label="SM /// — Sriram Mullapudi home" class="mark" href="#hero">SM <span>///</span></a>
 <div class="nav-links"><a href="#work">Experience</a><a href="#projects">Projects</a><a href="#stack">Toolkit</a><a href="#life">Photography</a><a href="#contact">Contact</a></div>
-<a class="nav-resume" href="portfolio-v3-assets/Sriram-Mullapudi-Resume.pdf" rel="noopener" target="_blank">Résumé ↗</a><button aria-haspopup="dialog" aria-label="Open navigation menu" class="menu-toggle" id="menu-open">☰</button>
+<a class="nav-resume" href="portfolio-v3-assets/Sriram-Mullapudi-Resume.pdf" rel="noopener" target="_blank">Résumé ↗</a><button aria-haspopup="dialog" aria-label="Open navigation menu" aria-controls="menu-dialog" aria-expanded="false" class="menu-toggle" id="menu-open">☰</button>
 </div></nav>
 <main id="main">
 <header class="hero" id="hero"><div class="wrap hero-grid"><div aria-hidden="true" class="hero-backdrop">ENGINEER</div>
@@ -269,7 +269,8 @@ $$('dialog').forEach(dialog=>{
   dialog.addEventListener('click',e=>{if(e.target!==dialog)return;const r=dialog.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)closeDialog(dialog)});
 });
 const menu=$('#menu-dialog');
-$('#menu-open').addEventListener('click',()=>openDialog(menu));
+$('#menu-open').addEventListener('click',()=>{openDialog(menu);$('#menu-open').setAttribute('aria-expanded','true')});
+menu.addEventListener('close',()=>$('#menu-open').setAttribute('aria-expanded','false'));
 $$('a[href^="#"]',menu).forEach(a=>a.addEventListener('click',()=>{menu.addEventListener('close',()=>requestAnimationFrame(()=>{const target=document.querySelector(a.hash);target?.focus({preventScroll:true})}),{once:true});closeDialog(menu)}));
 matchMedia('(min-width:821px)').addEventListener('change',e=>{if(e.matches&&menu.open)closeDialog(menu)});
 // Headings receive focus after in-page navigation, so keyboard reading continues there.
