@@ -271,10 +271,10 @@ $$('dialog').forEach(dialog=>{
 const menu=$('#menu-dialog');
 $('#menu-open').addEventListener('click',()=>{openDialog(menu);$('#menu-open').setAttribute('aria-expanded','true')});
 menu.addEventListener('close',()=>$('#menu-open').setAttribute('aria-expanded','false'));
-$$('a[href^="#"]',menu).forEach(a=>a.addEventListener('click',()=>{menu.addEventListener('close',()=>requestAnimationFrame(()=>{const target=document.querySelector(a.hash);target?.focus({preventScroll:true})}),{once:true});closeDialog(menu)}));
+$$('a[href^="#"]',menu).forEach(a=>a.addEventListener('click',()=>{menu.addEventListener('close',()=>requestAnimationFrame(()=>{const target=document.querySelector(a.hash);if(target){if(!target.hasAttribute('tabindex')){target.setAttribute('tabindex','-1');target.addEventListener('blur',()=>target.removeAttribute('tabindex'),{once:true})}target.focus({preventScroll:true})}}),{once:true});closeDialog(menu)}));
 matchMedia('(min-width:821px)').addEventListener('change',e=>{if(e.matches&&menu.open)closeDialog(menu)});
 // Headings receive focus after in-page navigation, so keyboard reading continues there.
-$$('a[href^="#"]').forEach(a=>a.addEventListener('click',()=>{const el=document.getElementById(a.hash.slice(1));if(!el)return;el.setAttribute('tabindex','-1');requestAnimationFrame(()=>el.focus({preventScroll:true}))}));
+$$('a[href^="#"]').forEach(a=>a.addEventListener('click',()=>{if(menu.contains(a))return;const el=document.getElementById(a.hash.slice(1));if(!el)return;el.setAttribute('tabindex','-1');requestAnimationFrame(()=>el.focus({preventScroll:true}))}));
 if('IntersectionObserver' in window){
   const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in-view');observer.unobserve(e.target)}}),{threshold:.08});
   $$('.chapter').forEach(el=>observer.observe(el));
