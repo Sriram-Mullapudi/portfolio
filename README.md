@@ -60,3 +60,18 @@ page session; reloading clears it.
 Use Tab and Shift+Tab to reach buttons and links. Architecture stage buttons can
 be activated with Enter or Space. The walkthrough can be paused and resumed;
 with reduced motion enabled, its main control advances one stage at a time.
+
+## Validate before publishing
+
+From this folder, run these offline checks with Python 3.9 or newer:
+
+```sh
+python -m unittest discover -s tests
+python scripts/check_assets.py
+```
+
+The checker validates static HTML file references, including images, scripts,
+stylesheets, and the resume. It reports missing files and paths outside the
+portfolio directory. It does not fetch external URLs or inspect CSS URLs,
+JavaScript-generated paths, or visual layout. Continue checking the rendered
+site on desktop and mobile before publishing design changes.
