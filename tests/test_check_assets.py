@@ -29,7 +29,7 @@ class AssetChecks(unittest.TestCase):
                                        ['assets/my photo.png']), [])
 
     def test_external_and_fragment_links_are_skipped(self):
-        self.assertEqual(self.run_site('<a href="#work"></a><a href="mailto:a@example.com"></a>'
+        self.assertEqual(self.run_site('<div id="work"></div><a href="#work"></a><a href="mailto:a@example.com"></a>'
                                        '<img src="https://example.com/a.png"><img src="//example.com/a.png">'), [])
 
     def test_parent_paths_are_rejected(self):
@@ -56,6 +56,20 @@ class AssetChecks(unittest.TestCase):
 
     def test_unique_ids_pass(self):
         self.assertEqual(self.run_site('<div id="work"></div><div id="projects"></div>'), [])
+
+
+    def test_missing_anchor_is_reported_once(self):
+        self.assertEqual(self.run_site('<a href="#missing"></a><a href="#missing"></a>'),
+                         ['Missing anchor target: #missing'])
+
+    def test_forward_encoded_anchor_passes(self):
+        self.assertEqual(self.run_site('<a href="#w%6Frk"></a><section id="work"></section>'), [])
+
+    def test_empty_and_text_fragments_pass(self):
+        self.assertEqual(self.run_site('<a href="#"></a><a href="#:~:text=hello"></a>'), [])
+
+    def test_anchor_with_text_fragment_passes(self):
+        self.assertEqual(self.run_site('<a href="#work:~:text=hello"></a><section id="work"></section>'), [])
 
 
 if __name__ == '__main__':

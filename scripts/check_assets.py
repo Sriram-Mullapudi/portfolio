@@ -11,6 +11,7 @@ class Assets(HTMLParser):
     def __init__(self):
         super().__init__()
         self.references = []
+        self.anchors = []
         self.ids = set()
         self.duplicate_ids = set()
 
@@ -21,6 +22,8 @@ class Assets(HTMLParser):
             if identifier in self.ids:
                 self.duplicate_ids.add(identifier)
             self.ids.add(identifier)
+        if tag == "a" and attrs.get("href", "").startswith("#"):
+            self.anchors.append(attrs["href"])
         attribute = "href" if tag in {"a", "link"} else "src"
         if tag in {"a", "link", "img", "script", "source", "video", "audio"}:
             if attrs.get(attribute):
@@ -37,6 +40,10 @@ def check(root):
     except (OSError, UnicodeError) as error:
         return [f"Cannot read index.html: {error}"]
     errors = [f"Duplicate HTML id: {identifier}" for identifier in sorted(parser.duplicate_ids)]
+    for reference in dict.fromkeys(parser.anchors):
+        target = unquote(reference[1:].split(":~:text=", 1)[0])
+        if target and target not in parser.ids:
+            errors.append(f"Missing anchor target: {reference}")
     for reference in dict.fromkeys(parser.references):
         try:
             url = urlsplit(reference)
@@ -57,5 +64,5 @@ if __name__ == "__main__":
     if errors:
         print("\n".join(errors), file=sys.stderr)
     else:
-        print("OK: static HTML file references exist.")
+        print("OK: static HTML assets, IDs and same-page links checked.")
     raise SystemExit(bool(errors))
