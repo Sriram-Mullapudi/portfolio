@@ -11,9 +11,16 @@ class Assets(HTMLParser):
     def __init__(self):
         super().__init__()
         self.references = []
+        self.ids = set()
+        self.duplicate_ids = set()
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        identifier = attrs.get("id")
+        if identifier:
+            if identifier in self.ids:
+                self.duplicate_ids.add(identifier)
+            self.ids.add(identifier)
         attribute = "href" if tag in {"a", "link"} else "src"
         if tag in {"a", "link", "img", "script", "source", "video", "audio"}:
             if attrs.get(attribute):
@@ -29,7 +36,7 @@ def check(root):
         parser.feed((root / "index.html").read_text(encoding="utf-8-sig"))
     except (OSError, UnicodeError) as error:
         return [f"Cannot read index.html: {error}"]
-    errors = []
+    errors = [f"Duplicate HTML id: {identifier}" for identifier in sorted(parser.duplicate_ids)]
     for reference in dict.fromkeys(parser.references):
         try:
             url = urlsplit(reference)

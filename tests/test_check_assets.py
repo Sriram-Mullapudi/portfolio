@@ -50,5 +50,13 @@ class AssetChecks(unittest.TestCase):
         self.assertIn('Invalid reference', errors[0])
 
 
+    def test_duplicate_ids_are_reported_once(self):
+        self.assertEqual(self.run_site('<div id="work"></div><span id="work"></span><p id="work"></p>'),
+                         ['Duplicate HTML id: work'])
+
+    def test_unique_ids_pass(self):
+        self.assertEqual(self.run_site('<div id="work"></div><div id="projects"></div>'), [])
+
+
 if __name__ == '__main__':
     unittest.main()
