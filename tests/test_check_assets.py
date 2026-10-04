@@ -72,5 +72,18 @@ class AssetChecks(unittest.TestCase):
         self.assertEqual(self.run_site('<a href="#work:~:text=hello"></a><section id="work"></section>'), [])
 
 
+    def test_valueless_href_does_not_crash_or_hide_missing_files(self):
+        self.assertEqual(self.run_site('<a href>Placeholder</a><img src="missing.png">'),
+                         ['Missing local file: missing.png'])
+
+    def test_url_whitespace_is_ignored(self):
+        self.assertEqual(self.run_site('<a href="  #work  "></a><div id="work"></div>'
+                                       '<img src="  assets/photo.png  ">', ['assets/photo.png']), [])
+
+    def test_whitespace_around_broken_anchor_is_checked(self):
+        self.assertEqual(self.run_site('<a href="  #missing  "></a>'),
+                         ['Missing anchor target: #missing'])
+
+
 if __name__ == '__main__':
     unittest.main()

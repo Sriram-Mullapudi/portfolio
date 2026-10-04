@@ -22,14 +22,15 @@ class Assets(HTMLParser):
             if identifier in self.ids:
                 self.duplicate_ids.add(identifier)
             self.ids.add(identifier)
-        if tag == "a" and attrs.get("href", "").startswith("#"):
-            self.anchors.append(attrs["href"])
+        href = (attrs.get("href") or "").strip()
+        if tag == "a" and href.startswith("#"):
+            self.anchors.append(href)
         attribute = "href" if tag in {"a", "link"} else "src"
         if tag in {"a", "link", "img", "script", "source", "video", "audio"}:
             if attrs.get(attribute):
-                self.references.append(attrs[attribute])
+                self.references.append(attrs[attribute].strip())
         if tag == "video" and attrs.get("poster"):
-            self.references.append(attrs["poster"])
+            self.references.append(attrs["poster"].strip())
 
 
 def check(root):
