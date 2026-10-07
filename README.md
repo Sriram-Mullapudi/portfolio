@@ -72,7 +72,9 @@ python scripts/check_assets.py
 
 The checker validates static HTML file references, including images, scripts,
 stylesheets, and the resume. It also catches duplicate HTML IDs and missing
-same-page anchor targets. It reports missing files and paths outside the
+same-page anchor targets. Declared `aria-labelledby`, `aria-describedby`, and
+`aria-controls` targets must also exist in the static HTML. These checks do not
+replace a browser accessibility review. It reports missing files and paths outside the
 portfolio directory. It does not fetch external URLs or inspect CSS URLs,
 JavaScript-generated paths, or visual layout. Continue checking the rendered
 site on desktop and mobile before publishing design changes.

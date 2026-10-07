@@ -12,6 +12,7 @@ class Assets(HTMLParser):
         super().__init__()
         self.references = []
         self.anchors = []
+        self.id_references = []
         self.ids = set()
         self.duplicate_ids = set()
 
@@ -22,6 +23,9 @@ class Assets(HTMLParser):
             if identifier in self.ids:
                 self.duplicate_ids.add(identifier)
             self.ids.add(identifier)
+        for attribute in ("aria-labelledby", "aria-describedby", "aria-controls"):
+            for target in (attrs.get(attribute) or "").split():
+                self.id_references.append((attribute, target))
         href = (attrs.get("href") or "").strip()
         if tag == "a" and href.startswith("#"):
             self.anchors.append(href)
@@ -41,6 +45,9 @@ def check(root):
     except (OSError, UnicodeError) as error:
         return [f"Cannot read index.html: {error}"]
     errors = [f"Duplicate HTML id: {identifier}" for identifier in sorted(parser.duplicate_ids)]
+    for attribute, target in dict.fromkeys(parser.id_references):
+        if target not in parser.ids:
+            errors.append(f"Missing {attribute} target: {target}")
     for reference in dict.fromkeys(parser.anchors):
         target = unquote(reference[1:].split(":~:text=", 1)[0])
         if target and target not in parser.ids:

@@ -85,5 +85,25 @@ class AssetChecks(unittest.TestCase):
                          ['Missing anchor target: #missing'])
 
 
+    def test_missing_accessibility_targets_are_reported(self):
+        for attribute in ('aria-labelledby', 'aria-describedby', 'aria-controls'):
+            with self.subTest(attribute=attribute):
+                self.assertEqual(self.run_site(f'<button {attribute}="missing"></button>'),
+                                 [f'Missing {attribute} target: missing'])
+
+    def test_multiple_forward_accessibility_targets_pass(self):
+        self.assertEqual(self.run_site('<section aria-labelledby="title subtitle" aria-describedby="description">'
+                                       '<h2 id="title">Title</h2><span id="subtitle">Subtitle</span>'
+                                       '<p id="description">Description</p></section>'), [])
+
+    def test_repeated_missing_accessibility_target_reported_once(self):
+        self.assertEqual(self.run_site('<button aria-controls="missing missing"></button>'
+                                       '<button aria-controls="missing"></button>'),
+                         ['Missing aria-controls target: missing'])
+
+    def test_empty_accessibility_attributes_are_safe(self):
+        self.assertEqual(self.run_site('<div aria-labelledby aria-describedby="  " aria-controls=""></div>'), [])
+
+
 if __name__ == '__main__':
     unittest.main()
