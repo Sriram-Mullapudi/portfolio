@@ -79,3 +79,9 @@ replace a browser accessibility review. It reports missing files and paths outsi
 portfolio directory. It does not fetch external URLs or inspect CSS URLs,
 JavaScript-generated paths, or visual layout. Continue checking the rendered
 site on desktop and mobile before publishing design changes.
+
+The same checks run automatically in the **Validate portfolio** GitHub Actions
+workflow on pushes to `main` and on pull requests. You can also run it manually
+from the repository's Actions tab. Review a failed run's logs before publishing
+further changes. This workflow reports validation results; it does not block the
+separate GitHub Pages deployment or replace desktop and mobile browser checks.
