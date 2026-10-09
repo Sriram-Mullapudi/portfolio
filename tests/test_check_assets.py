@@ -105,5 +105,18 @@ class AssetChecks(unittest.TestCase):
         self.assertEqual(self.run_site('<div aria-labelledby aria-describedby="  " aria-controls=""></div>'), [])
 
 
+    def test_wrong_filename_case_is_rejected_on_all_platforms(self):
+        self.assertEqual(self.run_site('<img src="assets/photo.png">', ['assets/Photo.png']),
+                         ['Missing local file: assets/photo.png'])
+
+    def test_wrong_directory_case_is_rejected_on_all_platforms(self):
+        self.assertEqual(self.run_site('<img src="assets/photo.png">', ['Assets/photo.png']),
+                         ['Missing local file: assets/photo.png'])
+
+    def test_exact_case_and_relative_segments_pass(self):
+        self.assertEqual(self.run_site('<img src="./Assets/../Assets/My%20Photo.png?v=1">',
+                                       ['Assets/My Photo.png']), [])
+
+
 if __name__ == '__main__':
     unittest.main()

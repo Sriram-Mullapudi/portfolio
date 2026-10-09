@@ -37,6 +37,19 @@ class Assets(HTMLParser):
             self.references.append(attrs["poster"].strip())
 
 
+def has_exact_case(root, relative_path):
+    """Match every path component exactly, even on Windows filesystems."""
+    current = root
+    for part in Path(relative_path).parts:
+        if part == "..":
+            current = current.parent
+            continue
+        if not current.is_dir() or part not in {entry.name for entry in current.iterdir()}:
+            return False
+        current = current / part
+    return True
+
+
 def check(root):
     root = Path(root).resolve()
     parser = Assets()
@@ -60,7 +73,7 @@ def check(root):
             path = (root / unquote(url.path)).resolve()
             if not path.is_relative_to(root):
                 errors.append(f"Reference escapes portfolio: {reference}")
-            elif not path.is_file():
+            elif not path.is_file() or not has_exact_case(root, unquote(url.path)):
                 errors.append(f"Missing local file: {reference}")
         except (ValueError, OSError) as error:
             errors.append(f"Invalid reference {reference}: {error}")
