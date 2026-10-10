@@ -61,7 +61,8 @@ qa('.frame img').forEach(img=>img.draggable=false);
 strip.addEventListener('pointerdown',e=>{if(e.pointerType!=='mouse'||e.button!==0)return;drag={id:e.pointerId,x:e.clientX,y:e.clientY,left:strip.scrollLeft,moved:false}});
 strip.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;const dx=e.clientX-drag.x,dy=e.clientY-drag.y;if(!drag.moved&&Math.abs(dx)>7&&Math.abs(dx)>Math.abs(dy)){drag.moved=true;strip.setPointerCapture(e.pointerId);strip.classList.add('is-dragging')}if(drag.moved){e.preventDefault();strip.scrollLeft=drag.left-dx}});
 function endDrag(e){if(!drag||e.pointerId!==drag.id)return;if(drag.moved){ignoreClickUntil=performance.now()+350;if(strip.hasPointerCapture(e.pointerId))strip.releasePointerCapture(e.pointerId)}drag=null;strip.classList.remove('is-dragging')}
-strip.addEventListener('pointerup',endDrag);strip.addEventListener('pointercancel',endDrag);strip.addEventListener('lostpointercapture',()=>{drag=null;strip.classList.remove('is-dragging')});
+// A release outside the strip or a window switch must also end a pending drag.
+window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',endDrag);window.addEventListener('blur',()=>{if(drag)endDrag({pointerId:drag.id})});strip.addEventListener('lostpointercapture',()=>{drag=null;strip.classList.remove('is-dragging')});
 strip.addEventListener('click',e=>{if(performance.now()<ignoreClickUntil){e.preventDefault();e.stopImmediatePropagation()}},true);
 strip.addEventListener('wheel',e=>{if(e.shiftKey&&Math.abs(e.deltaX)<1&&strip.scrollWidth>strip.clientWidth){const before=strip.scrollLeft;strip.scrollLeft+=e.deltaY;if(strip.scrollLeft!==before)e.preventDefault()}},{passive:false});
 function filmState(){q('#film-prev').disabled=strip.scrollLeft<2;q('#film-next').disabled=strip.scrollLeft>=strip.scrollWidth-strip.clientWidth-2}
