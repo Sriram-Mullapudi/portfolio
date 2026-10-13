@@ -63,7 +63,7 @@ strip.addEventListener('pointermove',e=>{if(!drag||e.pointerId!==drag.id)return;
 function endDrag(e){if(!drag||e.pointerId!==drag.id)return;if(drag.moved){ignoreClickUntil=performance.now()+350;if(strip.hasPointerCapture(e.pointerId))strip.releasePointerCapture(e.pointerId)}drag=null;strip.classList.remove('is-dragging')}
 // A release outside the strip or a window switch must also end a pending drag.
 window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',endDrag);window.addEventListener('blur',()=>{if(drag)endDrag({pointerId:drag.id})});strip.addEventListener('lostpointercapture',()=>{drag=null;strip.classList.remove('is-dragging')});
-strip.addEventListener('click',e=>{if(performance.now()<ignoreClickUntil){e.preventDefault();e.stopImmediatePropagation()}},true);
+strip.addEventListener('click',e=>{if(e.detail>0&&performance.now()<ignoreClickUntil){e.preventDefault();e.stopImmediatePropagation()}},true);
 strip.addEventListener('wheel',e=>{if(e.shiftKey&&Math.abs(e.deltaX)<1&&strip.scrollWidth>strip.clientWidth){const before=strip.scrollLeft;strip.scrollLeft+=e.deltaY;if(strip.scrollLeft!==before)e.preventDefault()}},{passive:false});
 function filmState(){q('#film-prev').disabled=strip.scrollLeft<2;q('#film-next').disabled=strip.scrollLeft>=strip.scrollWidth-strip.clientWidth-2}
 strip.addEventListener('scroll',filmState,{passive:true});new ResizeObserver(filmState).observe(strip);filmState();
