@@ -81,7 +81,8 @@ document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('key
 // Shared project URLs open their case study, including browser back/forward navigation.
 (()=>{
  function openLinkedProject(){
-  const id=location.hash.slice(1);
+  let id;
+  try{id=decodeURIComponent(location.hash.slice(1))}catch{return}
   const project=document.getElementById(id);
   if(!project?.matches('details.project'))return;
   project.open=true;
