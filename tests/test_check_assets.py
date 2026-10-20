@@ -21,19 +21,19 @@ class AssetChecks(unittest.TestCase):
             return checker.check(root)
 
     def test_missing_files_are_deduplicated(self):
-        self.assertEqual(self.run_site('<img src="missing.png"><img src="missing.png">'),
+        self.assertEqual(self.run_site('<img alt="" src="missing.png"><img alt="" src="missing.png">'),
                          ['Missing local file: missing.png'])
 
     def test_encoded_paths_and_query_strings(self):
-        self.assertEqual(self.run_site('<img src="assets/my%20photo.png?v=2#preview">',
+        self.assertEqual(self.run_site('<img alt="" src="assets/my%20photo.png?v=2#preview">',
                                        ['assets/my photo.png']), [])
 
     def test_external_and_fragment_links_are_skipped(self):
         self.assertEqual(self.run_site('<div id="work"></div><a href="#work"></a><a href="mailto:a@example.com"></a>'
-                                       '<img src="https://example.com/a.png"><img src="//example.com/a.png">'), [])
+                                       '<img alt="" src="https://example.com/a.png"><img alt="" src="//example.com/a.png">'), [])
 
     def test_parent_paths_are_rejected(self):
-        self.assertIn('escapes portfolio', self.run_site('<img src="../outside.png">')[0])
+        self.assertIn('escapes portfolio', self.run_site('<img alt="" src="../outside.png">')[0])
 
     def test_missing_entry_file_is_reported(self):
         with TemporaryDirectory() as folder:
@@ -45,7 +45,7 @@ class AssetChecks(unittest.TestCase):
         self.assertEqual(len(errors), 4)
 
     def test_invalid_url_does_not_hide_other_failures(self):
-        errors = self.run_site('<img src="https://[broken"><img src="missing.png">')
+        errors = self.run_site('<img alt="" src="https://[broken"><img alt="" src="missing.png">')
         self.assertEqual(len(errors), 2)
         self.assertIn('Invalid reference', errors[0])
 
@@ -73,12 +73,12 @@ class AssetChecks(unittest.TestCase):
 
 
     def test_valueless_href_does_not_crash_or_hide_missing_files(self):
-        self.assertEqual(self.run_site('<a href>Placeholder</a><img src="missing.png">'),
+        self.assertEqual(self.run_site('<a href>Placeholder</a><img alt="" src="missing.png">'),
                          ['Missing local file: missing.png'])
 
     def test_url_whitespace_is_ignored(self):
         self.assertEqual(self.run_site('<a href="  #work  "></a><div id="work"></div>'
-                                       '<img src="  assets/photo.png  ">', ['assets/photo.png']), [])
+                                       '<img alt="" src="  assets/photo.png  ">', ['assets/photo.png']), [])
 
     def test_whitespace_around_broken_anchor_is_checked(self):
         self.assertEqual(self.run_site('<a href="  #missing  "></a>'),
@@ -106,16 +106,29 @@ class AssetChecks(unittest.TestCase):
 
 
     def test_wrong_filename_case_is_rejected_on_all_platforms(self):
-        self.assertEqual(self.run_site('<img src="assets/photo.png">', ['assets/Photo.png']),
+        self.assertEqual(self.run_site('<img alt="" src="assets/photo.png">', ['assets/Photo.png']),
                          ['Missing local file: assets/photo.png'])
 
     def test_wrong_directory_case_is_rejected_on_all_platforms(self):
-        self.assertEqual(self.run_site('<img src="assets/photo.png">', ['Assets/photo.png']),
+        self.assertEqual(self.run_site('<img alt="" src="assets/photo.png">', ['Assets/photo.png']),
                          ['Missing local file: assets/photo.png'])
 
     def test_exact_case_and_relative_segments_pass(self):
-        self.assertEqual(self.run_site('<img src="./Assets/../Assets/My%20Photo.png?v=1">',
+        self.assertEqual(self.run_site('<img alt="" src="./Assets/../Assets/My%20Photo.png?v=1">',
                                        ['Assets/My Photo.png']), [])
+
+
+    def test_missing_image_alt_includes_source_line(self):
+        self.assertEqual(self.run_site('<p>Photo</p>\n<img src="photo.png">', ['photo.png']),
+                         ['Image missing alt attribute at line 2'])
+
+    def test_descriptive_and_decorative_alt_are_allowed(self):
+        self.assertEqual(self.run_site('<img src="photo.png" alt="Tampa skyline">'
+                                       '<img src="photo.png" alt="">', ['photo.png']), [])
+
+    def test_missing_alt_does_not_hide_missing_asset(self):
+        self.assertEqual(self.run_site('<img src="missing.png">'),
+                         ['Image missing alt attribute at line 1', 'Missing local file: missing.png'])
 
 
 if __name__ == '__main__':

@@ -11,6 +11,7 @@ class Assets(HTMLParser):
     def __init__(self):
         super().__init__()
         self.references = []
+        self.image_errors = []
         self.anchors = []
         self.id_references = []
         self.ids = set()
@@ -18,6 +19,8 @@ class Assets(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == "img" and "alt" not in attrs:
+            self.image_errors.append(f"Image missing alt attribute at line {self.getpos()[0]}")
         identifier = attrs.get("id")
         if identifier:
             if identifier in self.ids:
@@ -58,6 +61,7 @@ def check(root):
     except (OSError, UnicodeError) as error:
         return [f"Cannot read index.html: {error}"]
     errors = [f"Duplicate HTML id: {identifier}" for identifier in sorted(parser.duplicate_ids)]
+    errors.extend(parser.image_errors)
     for attribute, target in dict.fromkeys(parser.id_references):
         if target not in parser.ids:
             errors.append(f"Missing {attribute} target: {target}")

@@ -73,7 +73,9 @@ python scripts/check_assets.py
 The checker validates static HTML file references, including images, scripts,
 stylesheets, and the resume. File and folder capitalization must match exactly,
 even when checking on Windows, so references also work on GitHub Pages. It also catches duplicate HTML IDs and missing
-same-page anchor targets. Declared `aria-labelledby`, `aria-describedby`, and
+same-page anchor targets. Images must declare an `alt` attribute; use descriptive
+text for meaningful images and `alt=""` for decorative ones. The checker cannot
+judge whether a description is accurate or useful. Declared `aria-labelledby`, `aria-describedby`, and
 `aria-controls` targets must also exist in the static HTML. These checks do not
 replace a browser accessibility review. It reports missing files and paths outside the
 portfolio directory. It does not fetch external URLs or inspect CSS URLs,
