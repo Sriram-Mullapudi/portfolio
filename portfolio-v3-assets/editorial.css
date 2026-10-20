@@ -45,3 +45,9 @@
 @media(min-width:1100px){.project .case-visual{align-self:start;position:sticky;top:105px}}
 @media(max-width:700px){.selected-strip .selected-card{padding:24px}.decision-brief{grid-template-columns:1fr;margin-top:24px}.decision-brief>div{padding:20px;border-right:0;border-bottom:1px solid #ffffff14}.decision-brief>div:last-child{border-bottom:0}.project{padding-block:28px}.selected-strip{padding-block:30px 40px}.selected-strip .selected-card .work-thesis{font-size:17px}.work-result{margin-block:24px}}
 @media(prefers-reduced-motion:reduce){.walkthrough-stages button{transition:none}}
+
+/* Folio product preview: preserve the complete screenshot at every viewport. */
+.folio-preview{margin:28px 0 36px;border:1px solid #ffffff20;border-radius:12px;overflow:hidden;background:#11151b}
+.folio-preview a{display:block}.folio-preview img{display:block;width:100%;height:auto}
+.folio-preview figcaption{display:flex;justify-content:space-between;gap:12px;padding:16px 20px;color:var(--ink-muted,#b4bbc6);font:11px/1.7 var(--mono,monospace)}
+@media(max-width:700px){.folio-preview figcaption{flex-direction:column;padding:14px}.folio-preview{margin-block:24px}}
