@@ -47,19 +47,31 @@
 @media(prefers-reduced-motion:reduce){.walkthrough-stages button{transition:none}}
 
 /* Folio product preview: preserve the complete screenshot at every viewport. */
-.folio-preview{margin:28px 0 36px;border:1px solid #ffffff20;border-radius:12px;overflow:hidden;background:#11151b}
-.folio-preview a{display:block}.folio-preview img{display:block;width:100%;height:auto}
-.folio-preview figcaption{display:flex;justify-content:space-between;gap:12px;padding:16px 20px;color:var(--ink-muted,#b4bbc6);font:11px/1.7 var(--mono,monospace)}
-@media(max-width:700px){.folio-preview figcaption{flex-direction:column;padding:14px}.folio-preview{margin-block:24px}}
+.product-preview{margin:28px 0 36px;border:1px solid #ffffff20;border-radius:12px;overflow:hidden;background:#11151b}
+.product-preview a{display:block}.product-preview img{display:block;width:100%;height:auto}
+.product-preview figcaption{display:flex;justify-content:space-between;gap:12px;padding:16px 20px;color:var(--ink-muted,#b4bbc6);font:11px/1.7 var(--mono,monospace)}
+@media(max-width:700px){.product-preview figcaption{flex-direction:column;padding:14px}.product-preview{margin-block:24px}}
 
 /* Keep Folio's first view focused on the product. */
-#knowledge-search>summary{grid-template-columns:60px minmax(0,1fr) 32px}
-.folio-overview{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:40px;align-items:center;padding-block:32px}
-.folio-copy h4{font-size:clamp(24px,3vw,36px);line-height:1.2;letter-spacing:-.03em;margin:0 0 20px}
-.folio-copy p{max-width:40ch;line-height:1.8;color:var(--ink-muted,#b4bbc6)}
-.folio-copy ul{padding-left:18px;margin:22px 0 28px;line-height:2;color:var(--ink-muted,#b4bbc6)}
-.folio-overview .folio-preview{margin:0}
-.folio-technical{border-top:1px solid #ffffff20;padding-top:20px}
-.folio-technical>summary{display:list-item;cursor:pointer;font-size:14px;color:var(--ink-muted,#b4bbc6)}
-.folio-technical-body{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding-top:24px;line-height:1.8}
-@media(max-width:700px){#knowledge-search>summary{grid-template-columns:36px minmax(0,1fr) 24px}.folio-overview,.folio-technical-body{grid-template-columns:1fr;gap:24px}.folio-overview{padding-block:24px}}
+.product-project>summary{grid-template-columns:60px minmax(0,1fr) 32px}
+.product-overview{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:40px;align-items:center;padding-block:32px}
+.product-copy h4{font-size:clamp(24px,3vw,36px);line-height:1.2;letter-spacing:-.03em;margin:0 0 20px}
+.product-copy p{max-width:40ch;line-height:1.8;color:var(--ink-muted,#b4bbc6)}
+.product-copy ul{padding-left:18px;margin:22px 0 28px;line-height:2;color:var(--ink-muted,#b4bbc6)}
+.product-overview .product-preview{margin:0}
+.product-technical{border-top:1px solid #ffffff20;padding-top:20px}
+.product-technical>summary{display:list-item;cursor:pointer;font-size:14px;color:var(--ink-muted,#b4bbc6)}
+.product-technical-body{display:grid;grid-template-columns:1fr 1fr;gap:40px;padding-top:24px;line-height:1.8}
+@media(max-width:700px){.product-project>summary{grid-template-columns:36px minmax(0,1fr) 24px}.product-overview,.product-technical-body{grid-template-columns:1fr;gap:24px}.product-overview{padding-block:24px}}
+
+/* Quiet project cards; the expanded view carries the product story. */
+.selected-strip .selected-card{border:1px solid #ffffff18;border-radius:10px;padding:28px 30px;background:#101218}
+.selected-strip .selected-card:after{display:none}
+.selected-strip .selected-card h3{font-size:26px;margin-block:18px 8px}
+.selected-strip .selected-card .work-thesis{margin-top:18px;max-width:34ch;font-size:16px;color:var(--ink-muted,#b4bbc6)}
+.selected-strip .selected-card .work-bottom{margin-top:26px;padding-top:18px;border-top:1px solid #ffffff12}
+.product-project>summary h3{font-size:clamp(28px,4vw,44px)}
+.product-project .project-subtitle{max-width:48ch;line-height:1.7}
+.product-technical-body>div>p{color:var(--ink-muted,#b4bbc6);max-width:55ch}
+.product-preview a:focus-visible{outline:2px solid var(--project-accent);outline-offset:-4px}
+@media(max-width:700px){.selected-strip .selected-card{padding:24px}.selected-strip .selected-card .work-bottom{gap:12px;flex-wrap:wrap}.product-technical-body{min-width:0}}
