@@ -51,7 +51,7 @@ Personal photographs and portfolio content belong to Sriram Mullapudi. Font lice
 | Photo viewer | Home / End | First / last photo |
 | Any dialog | Escape | Close and return focus to its opener |
 | Terminal input | Up / Down arrow | Browse command history; Down restores your unfinished draft |
-| Terminal input | Tab | Complete a command or list matching commands |
+| Terminal input | Tab | Complete a command or `goto` destination; list multiple matches |
 
 In the terminal, `help` lists commands and `exit` closes the dialog. Consecutive
 identical commands occupy one history entry. History is kept only in the current
