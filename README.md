@@ -76,7 +76,10 @@ even when checking on Windows, so references also work on GitHub Pages. It also 
 same-page anchor targets. Images must declare an `alt` attribute; use descriptive
 text for meaningful images and `alt=""` for decorative ones. The checker cannot
 judge whether a description is accurate or useful. Declared `aria-labelledby`, `aria-describedby`, and
-`aria-controls` targets must also exist in the static HTML. These checks do not
+`aria-controls` targets must also exist in the static HTML. Explicit form labels
+(`label for="input-id"`) must reference an existing ID. Implicit labels wrapping
+an input do not need a `for` attribute. This checks target existence, not whether
+the target is a labelable form control. These checks do not
 replace a browser accessibility review. It reports missing files and paths outside the
 portfolio directory. It does not fetch external URLs or inspect CSS URLs,
 JavaScript-generated paths, or visual layout. Continue checking the rendered

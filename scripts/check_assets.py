@@ -29,6 +29,8 @@ class Assets(HTMLParser):
         for attribute in ("aria-labelledby", "aria-describedby", "aria-controls"):
             for target in (attrs.get(attribute) or "").split():
                 self.id_references.append((attribute, target))
+        if tag == "label" and attrs.get("for"):
+            self.id_references.append(("label for", attrs["for"]))
         href = (attrs.get("href") or "").strip()
         if tag == "a" and href.startswith("#"):
             self.anchors.append(href)

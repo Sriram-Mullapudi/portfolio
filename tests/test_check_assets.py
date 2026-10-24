@@ -131,5 +131,22 @@ class AssetChecks(unittest.TestCase):
                          ['Image missing alt attribute at line 1', 'Missing local file: missing.png'])
 
 
+    def test_explicit_label_requires_existing_target(self):
+        self.assertEqual(self.run_site('<label for="command">Command</label>'),
+                         ['Missing label for target: command'])
+
+    def test_forward_label_target_passes(self):
+        self.assertEqual(self.run_site('<label for="command-input">Command</label>'
+                                       '<input id="command-input">'), [])
+
+    def test_implicit_label_needs_no_for_attribute(self):
+        self.assertEqual(self.run_site('<label>Command <input></label>'), [])
+
+    def test_repeated_broken_labels_report_once(self):
+        self.assertEqual(self.run_site('<label for="missing">First</label>'
+                                       '<label for="missing">Second</label>'),
+                         ['Missing label for target: missing'])
+
+
 if __name__ == '__main__':
     unittest.main()
