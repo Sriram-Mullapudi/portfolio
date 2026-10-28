@@ -63,6 +63,15 @@ with reduced motion enabled, its main control advances one stage at a time.
 
 ## Scroll motion
 
+On screens at least 1000px wide and 700px tall, the selected-work showcase pins
+below the navigation. Native scroll position scrubs between the Folio and Speedway
+screenshots, including in reverse. Project buttons and keyboard focus bring the
+corresponding card into view. The hero portrait also scales subtly with scroll.
+Small screens and reduced-motion settings retain ordinary stacked/grid cards;
+no wheel or touch scrolling is intercepted. These enhancements are in
+`portfolio-v3-assets/scroll-story.css` and `scroll-story.js`.
+
+
 Section headings, experience entries, project summaries, skill rows, and contact
 content slide and fade in from their entry edge when scrolling down or back up.
 Entrances replay only after the content leaves the viewport. Keyboard focus
