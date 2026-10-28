@@ -19,6 +19,29 @@ const nav=q('.nav'),sections=['work','projects','stack','life','contact'].map(id
 function updateScroll(){scrollFrame=0;const range=document.documentElement.scrollHeight-innerHeight;progress.style.transform=`scaleX(${range>0?Math.min(1,Math.max(0,scrollY/range)):0})`;nav.classList.toggle('is-scrolled',scrollY>16);let current='';for(const section of sections)if(section.getBoundingClientRect().top<=innerHeight*.38)current=section.id;qa('.nav-links a,.menu-items a').forEach(a=>{if(a.hash==='#'+current)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}
 function scheduleScroll(){if(!scrollFrame)scrollFrame=requestAnimationFrame(updateScroll)}
 addEventListener('scroll',scheduleScroll,{passive:true});addEventListener('resize',scheduleScroll);new ResizeObserver(scheduleScroll).observe(document.body);updateScroll();
+// Repeat section entrances from the edge they enter, without hiding content in CSS.
+const scrollTargets=qa('.selected-heading,.section-head,.job,.project>summary,.toolkit-intro,.skill-row,.photo-heading,.photo-intro,.about-line,.contact-grid>div');
+const scrollState=new WeakMap(),scrollAnimations=new Map();
+function cancelScrollReveal(el){const a=scrollAnimations.get(el);if(a){a.cancel();scrollAnimations.delete(el)}}
+const scrollReveal=new IntersectionObserver(entries=>{
+ for(const entry of entries){
+  const el=entry.target,previous=scrollState.get(el);
+  if(!entry.isIntersecting){scrollState.set(el,false);cancelScrollReveal(el);continue}
+  if(entry.intersectionRatio<.08||previous===true)continue;
+  scrollState.set(el,true);
+  // Leave content already on screen at page load (or a restored scroll position) still.
+  if(previous===undefined||reduced.matches||document.hidden||el.contains(document.activeElement))continue;
+  const distance=innerWidth<600?24:40;
+  const from=entry.boundingClientRect.top>innerHeight/2?distance:-distance;
+  const a=animate(el,[{opacity:.2,translate:`0 ${from}px`},{opacity:1,translate:'0 0'}],{duration:720,easing:'cubic-bezier(.22,1,.36,1)'});
+  if(a){a.id='scroll-reveal';scrollAnimations.set(el,a);a.finished.catch(()=>{}).finally(()=>{if(scrollAnimations.get(el)===a)scrollAnimations.delete(el)})}
+ }
+},{threshold:[0,.08]});
+scrollTargets.forEach(el=>scrollReveal.observe(el));
+// Keyboard users never have to wait for an entrance to finish.
+document.addEventListener('focusin',e=>{scrollTargets.forEach(el=>{if(el.contains(e.target))cancelScrollReveal(el)})});
+addEventListener('beforeprint',()=>scrollTargets.forEach(cancelScrollReveal));
+
 // Finite emphasis only; the text is never counted up or replaced.
 const reveal=new IntersectionObserver(entries=>entries.forEach(e=>{if(!e.isIntersecting)return;reveal.unobserve(e.target);animate(e.target,[{opacity:.35,translate:'0 10px'},{opacity:1,translate:'0 0'}],{duration:580,delay:Number(e.target.dataset.craftDelay||0)})}),{threshold:.35});
 qa('.metrics').forEach(group=>qa('.metric strong',group).forEach((el,i)=>{el.dataset.craftDelay=i*65;reveal.observe(el)}));

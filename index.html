@@ -358,8 +358,6 @@ if(location.hash==='#terminal')openTerminal();
   if(motion.matches||document.hidden||!el)return;
   const a=el.animate(frames,{duration:550,easing:'cubic-bezier(.2,.7,.2,1)'});running.add(a);a.finished.catch(()=>{}).finally(()=>running.delete(a));
  }
- const observer=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){observer.unobserve(e.target);reveal(e.target)}}),{threshold:.12});
- $$('.section-head,.photo-heading').forEach(el=>observer.observe(el));
  const portrait=$('.hero-portrait img');
  function portraitReady(){reveal(portrait,[{opacity:.5,clipPath:'inset(0 0 7% 0)'},{opacity:1,clipPath:'inset(0)'}])}
  

@@ -61,6 +61,14 @@ Use Tab and Shift+Tab to reach buttons and links. Architecture stage buttons can
 be activated with Enter or Space. The walkthrough can be paused and resumed;
 with reduced motion enabled, its main control advances one stage at a time.
 
+## Scroll motion
+
+Section headings, experience entries, project summaries, skill rows, and contact
+content slide and fade in from their entry edge when scrolling down or back up.
+Entrances replay only after the content leaves the viewport. Keyboard focus
+cancels an active entrance, reduced-motion preferences disable it, and content
+remains visible if JavaScript is unavailable. Scrolling stays native.
+
 ## Validate before publishing
 
 From this folder, run these offline checks with Python 3.9 or newer:
