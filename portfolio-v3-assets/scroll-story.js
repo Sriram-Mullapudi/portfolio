@@ -4,7 +4,7 @@
 const scene=document.querySelector('.selected-strip'),hero=document.querySelector('#hero');
 if(!scene||!hero)return;
 const grid=scene.querySelector('.selected-grid'),cards=[...grid.children],controls=scene.querySelector('.showcase-controls'),buttons=[...controls.querySelectorAll('button')];
-const media=matchMedia('(min-width:1000px) and (min-height:700px) and (prefers-reduced-motion:no-preference)');
+const media=matchMedia('(min-width:821px) and (min-height:620px) and (prefers-reduced-motion:no-preference)');
 const clamp=n=>Math.max(0,Math.min(1,n));let frame=0;
 function progress(){const top=scene.getBoundingClientRect().top;const distance=scene.offsetHeight-scene.querySelector('.showcase-sticky').offsetHeight;return clamp((82-top)/Math.max(1,distance))}
 function render(){frame=0;if(!media.matches)return;

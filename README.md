@@ -63,7 +63,7 @@ with reduced motion enabled, its main control advances one stage at a time.
 
 ## Scroll motion
 
-On screens at least 1000px wide and 700px tall, the selected-work showcase pins
+On screens at least 821px wide and 620px tall, the selected-work showcase pins
 below the navigation. Native scroll position scrubs between the Folio and Speedway
 screenshots, including in reverse. Project buttons and keyboard focus bring the
 corresponding card into view. The hero portrait also scales subtly with scroll.
