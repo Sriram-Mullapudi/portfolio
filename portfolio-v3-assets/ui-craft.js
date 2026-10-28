@@ -20,7 +20,7 @@ function updateScroll(){scrollFrame=0;const range=document.documentElement.scrol
 function scheduleScroll(){if(!scrollFrame)scrollFrame=requestAnimationFrame(updateScroll)}
 addEventListener('scroll',scheduleScroll,{passive:true});addEventListener('resize',scheduleScroll);new ResizeObserver(scheduleScroll).observe(document.body);updateScroll();
 // Repeat section entrances from the edge they enter, without hiding content in CSS.
-const scrollTargets=qa('.selected-heading,.section-head,.job,.project>summary,.toolkit-intro,.skill-row,.photo-heading,.photo-intro,.about-line,.contact-grid>div');
+const scrollTargets=qa('.selected-heading,.section-head,.job,.project>summary,.project-heading,.toolkit-intro,.skill-row,.photo-heading,.photo-intro,.about-line,.contact-grid>div');
 const scrollState=new WeakMap(),scrollAnimations=new Map();
 function cancelScrollReveal(el){const a=scrollAnimations.get(el);if(a){a.cancel();scrollAnimations.delete(el)}}
 const scrollReveal=new IntersectionObserver(entries=>{
@@ -107,8 +107,8 @@ document.querySelectorAll('dialog').forEach(dialog=>dialog.addEventListener('key
   let id;
   try{id=decodeURIComponent(location.hash.slice(1))}catch{return}
   const project=document.getElementById(id);
-  if(!project?.matches('details.project'))return;
-  project.open=true;
+  if(!project?.matches('.project'))return;
+  if(project.tagName==='DETAILS')project.open=true;
   requestAnimationFrame(()=>project.scrollIntoView({block:'start',behavior:'instant'}));
  }
  addEventListener('hashchange',openLinkedProject);

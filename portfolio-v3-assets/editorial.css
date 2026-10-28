@@ -75,3 +75,19 @@
 .product-technical-body>div>p{color:var(--ink-muted,#b4bbc6);max-width:55ch}
 .product-preview a:focus-visible{outline:2px solid var(--project-accent);outline-offset:-4px}
 @media(max-width:700px){.selected-strip .selected-card{padding:24px}.selected-strip .selected-card .work-bottom{gap:12px;flex-wrap:wrap}.product-technical-body{min-width:0}}
+
+/* Product overviews are always visible; only implementation details collapse. */
+#projects .product-project{padding-block:38px 44px;scroll-margin-top:100px}
+#projects .project-heading{display:grid;grid-template-columns:44px minmax(0,1fr);gap:24px;align-items:start;padding:0 0 24px;min-height:0}
+#projects .project-heading .project-num{position:static;grid-column:1;grid-row:1;padding-top:10px}
+#projects .project-heading>div{grid-column:2;grid-row:1;min-width:0}
+#projects .project-heading h3{font-size:clamp(30px,3.6vw,48px);line-height:1.12;letter-spacing:-.04em;max-width:none;margin:0}
+#projects .project-heading .project-subtitle{max-width:58ch;width:auto;margin-top:14px;font-size:17px;line-height:1.6}
+#projects .product-overview{padding-block:12px 32px}
+#projects .product-copy{min-width:0}
+#projects .product-preview{min-width:0}
+@media(max-width:700px){
+ #projects .project-heading{grid-template-columns:30px minmax(0,1fr);gap:14px;padding-bottom:20px}
+ #projects .project-heading .project-subtitle{font-size:16px}
+ #projects .product-overview{gap:24px}
+}
