@@ -64,8 +64,9 @@ with reduced motion enabled, its main control advances one stage at a time.
 ## Scroll motion
 
 On screens at least 821px wide and 620px tall, the selected-work showcase pins
-below the navigation. Native scroll position scrubs between the Folio and Speedway
-screenshots, including in reverse. Project buttons and keyboard focus bring the
+below the navigation. Native scroll position controls layered crossfades between the Folio and Speedway
+screenshots, including in reverse. Text fades separately to avoid overlapping
+headlines, while framed product previews gently recede and advance. Project buttons and keyboard focus bring the
 corresponding card into view. The hero portrait also scales subtly with scroll.
 Small screens and reduced-motion settings retain ordinary stacked/grid cards;
 no wheel or touch scrolling is intercepted. These enhancements are in
