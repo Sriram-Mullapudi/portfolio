@@ -33,3 +33,7 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Validate portfolio assets and HTML targets
         run: python scripts/check_assets.py
+      - name: Test JavaScript checker
+        run: node --test tests/check_javascript.test.cjs
+      - name: Check browser JavaScript syntax
+        run: node scripts/check_javascript.cjs

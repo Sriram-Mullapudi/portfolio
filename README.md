@@ -86,6 +86,8 @@ From this folder, run these offline checks with Python 3.9 or newer:
 ```sh
 python -m unittest discover -s tests
 python scripts/check_assets.py
+node --test tests/check_javascript.test.cjs
+node scripts/check_javascript.cjs
 ```
 
 The checker validates static HTML file references, including images, scripts,
@@ -110,3 +112,9 @@ filename capitalization checks that Windows would otherwise overlook. You can al
 from the repository's Actions tab. Review a failed run's logs before publishing
 further changes. This workflow reports validation results; it does not block the
 separate GitHub Pages deployment or replace desktop and mobile browser checks.
+
+The JavaScript check requires Node.js 18 or newer (available on the GitHub-hosted
+CI runners). It parses inline and local classic scripts referenced by index.html
+without executing them. Cache query strings are supported. JSON-LD, module
+scripts, remote scripts, and dynamically imported files are outside its scope;
+it does not replace browser interaction tests.
