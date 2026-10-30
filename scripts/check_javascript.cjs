@@ -9,8 +9,13 @@ function check(root) {
   let inline = 0;
   const seen = new Set();
   for (const match of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)) {
-    const attrs = Object.fromEntries([...match[1].matchAll(/([\w-]+)\s*=\s*(?:"([^"]*)"|'([^']*)')/g)]
-      .map(m => [m[1].toLowerCase(), m[2] ?? m[3]]));
+    const attrs = {};
+    // HTML permits both quoted and unquoted values; match whole attribute names.
+    for (const attribute of match[1].matchAll(/(?:^|\s)([^\s=/>]+)(?:\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s"'=<>`]+)))?/g)) {
+      const name = attribute[1].toLowerCase();
+      // Browsers retain the first value when an attribute is repeated.
+      if (!Object.hasOwn(attrs, name)) attrs[name] = attribute[2] ?? attribute[3] ?? attribute[4] ?? '';
+    }
     const type = (attrs.type || '').trim().toLowerCase();
     // JSON-LD and other data blocks are not executable classic scripts.
     if (type && !['text/javascript', 'application/javascript'].includes(type)) continue;

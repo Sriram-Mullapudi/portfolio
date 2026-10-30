@@ -30,3 +30,20 @@ test('skips data blocks and remote scripts', () => {
 test('rejects paths outside the site', () => {
   assert.match(site('<script src="../outside.js"></script>')[0], /escapes portfolio/);
 });
+
+test('checks unquoted script paths with whitespace and uppercase attributes', () => {
+  const errors = site('<script defer SRC = app.js?v=2></script>', {'app.js': 'const broken = ;'});
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /app.js/);
+});
+test('recognizes unquoted data types and does not confuse data-src with src', () => {
+  assert.deepEqual(site('<script type=application/ld+json>{"name":"Sriram"}</script>'), []);
+  assert.deepEqual(site('<script data-src="missing.js">document.title;</script>'), []);
+});
+test('uses the first duplicate attribute like the browser', () => {
+  const errors = site('<script src=broken.js src="valid.js"></script>', {
+    'broken.js': 'const broken = ;', 'valid.js': 'document.title;'
+  });
+  assert.equal(errors.length, 1);
+  assert.match(errors[0], /broken.js/);
+});
