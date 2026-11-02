@@ -119,17 +119,27 @@ without executing them. Cache query strings are supported. JSON-LD, module
 scripts, remote scripts, and dynamically imported files are outside its scope;
 it does not replace browser interaction tests.
 
-## Animated product walkthroughs
+## Product walkthrough videos
 
-Folio and Speedway have 18-second silent WebM videos in their project overviews.
-These are illustrated workflows with fictional sample data, not recordings of
-production transactions or model outputs. Each caption links to an actual app
-screenshot. Videos start muted on first entry into view, pause offscreen or when
-the tab is hidden, and retain native playback controls. Reduced motion disables
-automatic playback; manual playback remains available.
+Speedway's project preview is an edited recording of the native app running in
+its isolated development profile. It shows three sample items, a real backend
+checkout result, and the saved receipt. The sample cash tender does not move
+actual funds. Gentle zooms, cursor emphasis, and chapter labels are editorial
+overlays; the app's contents and totals are unmodified.
 
-To regenerate both videos and posters, install Playwright in your development
-environment and make Microsoft Edge available, then run
-`node scripts/render_product_videos.cjs`. Alternatively, set `PLAYWRIGHT_MODULE`
-to an installed Playwright module path. Rendering takes approximately 40 seconds.
-The generator uses Canvas and MediaRecorder; no account, payment, or AI API is used.
+Folio currently retains its illustrated 18-second workflow with fictional data.
+Its caption explicitly distinguishes it from recorded app footage. Both previews
+link to an actual app screenshot and offer a larger walkthrough dialog with
+native playback controls. Escape closes the dialog and restores button focus.
+
+Previews start muted on first entry into view and pause offscreen or when the tab
+is hidden. Reduced motion disables automatic preview playback; explicitly
+opening a walkthrough still allows playback. Closing the larger player stops it.
+
+The illustrated-video generator is `scripts/render_product_videos.cjs`.
+For recorded footage, `scripts/render_recorded_video.cjs capture.json output.webm`
+accepts timestamped local CDP screencast frames, cursor positions, and chapters.
+Both require Playwright and Microsoft Edge; `PLAYWRIGHT_MODULE` can point to an
+existing installation. Raw recordings stay outside this public repository to
+avoid accidentally publishing unrelated application data. Review every finished
+video before publishing. No payment processor or paid AI API is used.
