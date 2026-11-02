@@ -127,8 +127,10 @@ checkout result, and the saved receipt. The sample cash tender does not move
 actual funds. Gentle zooms, cursor emphasis, and chapter labels are editorial
 overlays; the app's contents and totals are unmodified.
 
-Folio currently retains its illustrated 18-second workflow with fictional data.
-Its caption explicitly distinguishes it from recorded app footage. Both previews
+Folio now shows a real upload, local-AI answer, and citation reveal using a
+fictional Northstar handbook in a dedicated demo account. The approximately
+17-second generation wait is shortened in the 23-second edit and labeled as
+such; the generated answer and cited source are unmodified. Both previews
 link to an actual app screenshot and offer a larger walkthrough dialog with
 native playback controls. Escape closes the dialog and restores button focus.
 

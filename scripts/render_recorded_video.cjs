@@ -15,10 +15,10 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
   window.draw=t=>{
    let frame=0,chapter=0;data.frames.forEach((f,i)=>{if(f.t<=t)frame=i;});data.chapters.forEach((f,i)=>{if(f.t<=t)chapter=i;});
    const ch=data.chapters[chapter];const progress=ease((t-ch.t)/1.1);
-   const zoom=chapter===0?1.02:chapter===1?1.02+.27*progress:1.29+.17*progress;
+   const zoom=data.title?.startsWith('Folio') ? 1.02 + (chapter > 0 ? .06*progress : 0) : chapter===0?1.02:chapter===1?1.02+.27*progress:1.29+.17*progress;
    c.fillStyle='#090e14';c.fillRect(0,0,1440,900);
-   c.fillStyle='#eff3f5';c.font='600 24px Arial';c.fillText('Speedway / In motion',44,41);
-   c.fillStyle='#6fd6a5';c.font='14px Arial';c.fillText('REAL APP · SAMPLE SALE',1150,38);
+   c.fillStyle='#eff3f5';c.font='600 24px Arial';c.fillText(data.title || 'Speedway / In motion',44,41);
+   c.fillStyle='#6fd6a5';c.font='14px Arial';c.fillText(data.badge || 'REAL APP · SAMPLE SALE',1110,38);
    c.save();c.beginPath();c.roundRect(44,68,1352,762,14);c.clip();c.fillStyle='#14202b';c.fillRect(44,68,1352,762);
    const scale=762/900*zoom;const ox=720-1440*scale/2,oy=449-900*scale/2;
    c.translate(ox,oy);c.scale(scale,scale);c.drawImage(images[frame],0,0,1440,900);
