@@ -118,3 +118,18 @@ CI runners). It parses inline and local classic scripts referenced by index.html
 without executing them. Cache query strings are supported. JSON-LD, module
 scripts, remote scripts, and dynamically imported files are outside its scope;
 it does not replace browser interaction tests.
+
+## Animated product walkthroughs
+
+Folio and Speedway have 18-second silent WebM videos in their project overviews.
+These are illustrated workflows with fictional sample data, not recordings of
+production transactions or model outputs. Each caption links to an actual app
+screenshot. Videos start muted on first entry into view, pause offscreen or when
+the tab is hidden, and retain native playback controls. Reduced motion disables
+automatic playback; manual playback remains available.
+
+To regenerate both videos and posters, install Playwright in your development
+environment and make Microsoft Edge available, then run
+`node scripts/render_product_videos.cjs`. Alternatively, set `PLAYWRIGHT_MODULE`
+to an installed Playwright module path. Rendering takes approximately 40 seconds.
+The generator uses Canvas and MediaRecorder; no account, payment, or AI API is used.

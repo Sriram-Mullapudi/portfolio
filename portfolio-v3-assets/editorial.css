@@ -91,3 +91,9 @@
  #projects .project-heading .project-subtitle{font-size:16px}
  #projects .product-overview{gap:24px}
 }
+
+/* Video previews retain native playback controls. */
+.product-video{display:block;width:100%;height:auto;aspect-ratio:16/9;background:#11151b}
+.product-film figcaption{align-items:start}
+.product-film figcaption>a{flex-shrink:0;text-underline-offset:4px}
+.product-video:focus-visible{outline:2px solid var(--project-accent);outline-offset:-3px}
