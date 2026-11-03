@@ -145,3 +145,25 @@ Both require Playwright and Microsoft Edge; `PLAYWRIGHT_MODULE` can point to an
 existing installation. Raw recordings stay outside this public repository to
 avoid accidentally publishing unrelated application data. Review every finished
 video before publishing. No payment processor or paid AI API is used.
+
+### Phone-specific playback
+
+Screens up to 700px wide receive a separate 720×960 detail edit with enlarged
+cart/receipt or answer/source crops from the same real recording. Desktop uses
+the wide edit. H.264 MP4 is preferred; the existing WebM remains a fallback.
+Rotation switches edits, retains the approximate position, and leaves playback
+paused so a layout change cannot override a pause choice. The larger player uses
+the same screen-specific edit. Posters remain visible before loading.
+
+Regenerate with `node scripts/render_mobile_videos.cjs <private-capture-folder>`
+using Playwright/Edge and the same optional PLAYWRIGHT_MODULE setting. The folder
+must contain folio-real-capture.json and speedway-real-capture.json. For desktop MP4, run `scripts/render_recorded_video.cjs` with the same capture
+JSON and an output path ending in `.mp4`. It encodes H.264 directly from the
+saved recording frames without changing app content.
+Phone-sized browser tests do not establish physical iPhone/Android compatibility;
+real-device playback verification remains a separate manual check.
+
+Run `node scripts/test_product_videos.cjs` with Playwright and Edge to check
+real MP4 playback, mobile dimensions, reduced motion, dialog focus restoration,
+rotation position, desktop source selection, and overflow at five viewport widths.
+This optional browser check uses the same PLAYWRIGHT_MODULE override.
