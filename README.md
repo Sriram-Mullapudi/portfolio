@@ -167,3 +167,21 @@ Run `node scripts/test_product_videos.cjs` with Playwright and Edge to check
 real MP4 playback, mobile dimensions, reduced motion, dialog focus restoration,
 rotation position, desktop source selection, and overflow at five viewport widths.
 This optional browser check uses the same PLAYWRIGHT_MODULE override.
+
+### Highlights and playback recovery
+
+Inline previews are nine-second highlight edits: three selected moments from the
+same recording, shown at their recorded speed. The larger player retains the
+full 20–23-second walkthrough. Add `--preview` to either rendering script to
+produce highlights; use `-preview.mp4` for desktop output. Mobile preview output
+is named `<film>-mobile-preview.mp4` automatically. Preview posters are reused.
+
+A failed source or media decoding error reveals Retry video and a download link
+to the full WebM walkthrough. Autoplay permission rejection alone does not show
+an error; visitors can still use the native Play button. Retrying resets the
+source and starts playback only because the visitor explicitly requested it.
+
+Run `node scripts/test_video_recovery.cjs` with the same Playwright setup to
+exercise blocked media requests over a local HTTP server, recovery visibility,
+download targets, successful retry, dialog reset, and short-versus-full durations.
+The fixture server supports byte ranges to match normal video hosting.

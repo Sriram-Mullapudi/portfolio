@@ -1,6 +1,7 @@
 const fs=require('node:fs'),path=require('node:path');
 const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const root=path.resolve(__dirname,'../portfolio-v3-assets');
+const preview=process.argv.includes('--preview');
 (async()=>{const b=await chromium.launch({headless:true,channel:'msedge'});
 for(const kind of (process.argv[3] ? [process.argv[3]] : ['folio','speedway'])){
  const data=JSON.parse(fs.readFileSync(path.join(process.argv[2],kind+'-real-capture.json'),'utf8'));
@@ -27,7 +28,9 @@ for(const kind of (process.argv[3] ? [process.argv[3]] : ['folio','speedway'])){
  // A short fade creates a quiet loop seam without changing the recording.
  const fade=Math.max(0,1-t/.35,(t-(data.duration-.45))/.45);if(fade>0){c.fillStyle=`rgba(9,14,20,${Math.min(1,fade)})`;c.fillRect(0,0,720,960);}
  };
- },{data,kind});await p.evaluate(()=>draw(5));await p.screenshot({path:path.join(root,kind+'-mobile-poster.png')});
- const bytes=await p.evaluate(async duration=>{const stream=document.querySelector('canvas').captureStream(24);const rec=new MediaRecorder(stream,{mimeType:'video/mp4;codecs=avc1.42001f',videoBitsPerSecond:2100000});const chunks=[];rec.ondataavailable=e=>chunks.push(e.data);const end=new Promise(r=>rec.onstop=r);rec.start();const start=performance.now();await new Promise(r=>{function step(n){draw(Math.min(duration,(n-start)/1000));if(n-start<duration*1000)requestAnimationFrame(step);else r();}requestAnimationFrame(step)});rec.stop();await end;stream.getTracks().forEach(t=>t.stop());return Array.from(new Uint8Array(await new Blob(chunks).arrayBuffer()));},data.duration);
- fs.writeFileSync(path.join(root,kind+'-mobile.mp4'),Buffer.from(bytes));console.log(kind+' mobile: '+bytes.length);await p.close();
+ },{data,kind});
+ if(preview) await p.evaluate(kind=>{const original=window.draw;window.draw=t=>{const segments=kind==='folio'?[4,13.4,19]:[4.5,10,17];original(segments[Math.min(2,Math.floor(t/3))]+t%3);};},kind);
+ if(!preview){await p.evaluate(()=>draw(5));await p.screenshot({path:path.join(root,kind+'-mobile-poster.png')});}
+ const bytes=await p.evaluate(async duration=>{const stream=document.querySelector('canvas').captureStream(24);const rec=new MediaRecorder(stream,{mimeType:'video/mp4;codecs=avc1.42001f',videoBitsPerSecond:2100000});const chunks=[];rec.ondataavailable=e=>chunks.push(e.data);const end=new Promise(r=>rec.onstop=r);rec.start();const start=performance.now();await new Promise(r=>{function step(n){draw(Math.min(duration,(n-start)/1000));if(n-start<duration*1000)requestAnimationFrame(step);else r();}requestAnimationFrame(step)});rec.stop();await end;stream.getTracks().forEach(t=>t.stop());return Array.from(new Uint8Array(await new Blob(chunks).arrayBuffer()));},preview?9:data.duration);
+ fs.writeFileSync(path.join(root,kind+(preview?'-mobile-preview.mp4':'-mobile.mp4')),Buffer.from(bytes));console.log(kind+' mobile: '+bytes.length);await p.close();
 }await b.close()})().catch(e=>{console.error(e);process.exit(1)});

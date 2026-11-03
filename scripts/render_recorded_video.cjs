@@ -5,6 +5,7 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 (async()=>{
  const capture=JSON.parse(fs.readFileSync(process.argv[2],'utf8'));
  const out=path.resolve(process.argv[3]);
+ const preview=process.argv.includes('--preview');
  const b=await chromium.launch({headless:true,channel:'msedge'});
  const p=await b.newPage({viewport:{width:1440,height:900}});
  await p.setContent('<body style="margin:0;background:#090e14"><canvas width="1440" height="900"></canvas></body>');
@@ -27,7 +28,11 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
    c.restore();c.fillStyle='#edf3f7';c.font='600 20px Arial';c.fillText(ch.text,44,869);c.fillStyle='#9dabb8';c.font='16px Arial';c.fillText(ch.detail,430,868);c.fillStyle='#284538';c.fillRect(44,891,1352,3);c.fillStyle='#6fd6a5';c.fillRect(44,891,1352*Math.min(t/data.duration,1),3);
   };
  },capture);
- await p.evaluate(()=>draw(2));await p.screenshot({path:out.replace(/\.(webm|mp4)$/, '-poster.png')});
- const bytes=await p.evaluate(async ({duration,mimeType})=>{const stream=document.querySelector('canvas').captureStream(30);const rec=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:3000000});const chunks=[];rec.ondataavailable=e=>chunks.push(e.data);const done=new Promise(r=>rec.onstop=r);rec.start();const start=performance.now();await new Promise(resolve=>{function step(now){draw(Math.min(duration,(now-start)/1000));if(now-start<duration*1000)requestAnimationFrame(step);else resolve();}requestAnimationFrame(step);});rec.stop();await done;stream.getTracks().forEach(t=>t.stop());return Array.from(new Uint8Array(await new Blob(chunks).arrayBuffer()));},{duration:capture.duration,mimeType:out.endsWith('.mp4')?'video/mp4;codecs=avc1.42001f':'video/webm;codecs=vp9'});
+ if(preview) await p.evaluate(folio=>{
+   const original=window.draw;
+   window.draw=t=>{const segments=folio?[4,13.4,19]:[4.5,10,17];original(segments[Math.min(2,Math.floor(t/3))]+t%3);};
+ },capture.title?.startsWith('Folio'));
+ if(!preview){await p.evaluate(()=>draw(2));await p.screenshot({path:out.replace(/\.(webm|mp4)$/, '-poster.png')});}
+ const bytes=await p.evaluate(async ({duration,mimeType})=>{const stream=document.querySelector('canvas').captureStream(30);const rec=new MediaRecorder(stream,{mimeType,videoBitsPerSecond:3000000});const chunks=[];rec.ondataavailable=e=>chunks.push(e.data);const done=new Promise(r=>rec.onstop=r);rec.start();const start=performance.now();await new Promise(resolve=>{function step(now){draw(Math.min(duration,(now-start)/1000));if(now-start<duration*1000)requestAnimationFrame(step);else resolve();}requestAnimationFrame(step);});rec.stop();await done;stream.getTracks().forEach(t=>t.stop());return Array.from(new Uint8Array(await new Blob(chunks).arrayBuffer()));},{duration:preview?9:capture.duration,mimeType:out.endsWith('.mp4')?'video/mp4;codecs=avc1.42001f':'video/webm;codecs=vp9'});
  fs.writeFileSync(out,Buffer.from(bytes));console.log(out+': '+bytes.length+' bytes');await b.close();
 })().catch(e=>{console.error(e);process.exit(1)});
