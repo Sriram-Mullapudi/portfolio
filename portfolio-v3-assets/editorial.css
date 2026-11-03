@@ -115,3 +115,19 @@
 .video-recovery{padding:16px;background:#18222c;color:#eeece7;border-top:1px solid #ffffff24;font:14px/1.6 var(--body)}
 .video-recovery p{margin:0 0 12px}.video-recovery button,.video-recovery a{display:inline-flex;align-items:center;min-height:44px;margin-right:14px;color:inherit}
 .video-recovery button{padding:8px 14px;background:transparent;border:1px solid #ffffff45;border-radius:6px}
+
+/* Three chapters, one product: native scrolling with a persistent preview. */
+#projects .project-story{align-items:start;grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr);gap:clamp(32px,5vw,80px)}
+.story-chapter{padding:28px 0 32px;border-top:1px solid #ffffff20}
+.story-chapter .story-eyebrow{font:11px/1.6 var(--mono,monospace);letter-spacing:.08em;text-transform:uppercase;color:var(--project-accent,#dfb982);margin:0 0 20px}
+.story-chapter h4{font-size:clamp(25px,2.6vw,37px)}
+.story-chapter>p:not(.story-eyebrow){font-size:16px;line-height:1.8;margin-bottom:0}
+.story-chapter .text-link{display:inline-block;margin-top:24px}
+.story-enhanced .story-chapter{min-height:48vh;display:flex;flex-direction:column;justify-content:center;position:relative;padding-left:24px;border-top:0;border-left:1px solid #ffffff20;transition:border-color .4s}
+.story-enhanced .story-chapter:before{content:'';position:absolute;left:-2px;top:30%;bottom:30%;width:3px;background:var(--project-accent,#dfb982);transform:scaleY(0);transition:transform .45s ease}
+.story-enhanced .story-chapter.is-current:before{transform:scaleY(1)}
+.story-enhanced .product-film{position:sticky;top:108px;box-shadow:0 24px 70px #0004}
+.story-enhanced .product-film:after{content:'';display:block;height:2px;background:var(--project-accent,#dfb982);transform:scaleX(var(--story-progress,.3333));transform-origin:left;transition:transform .5s ease}
+@media(max-width:1099px){#projects .project-story{grid-template-columns:1fr;gap:28px}.project-story .product-film{grid-row:1}.story-chapters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.story-chapter h4{font-size:24px}.story-chapter>p:not(.story-eyebrow){font-size:15px}}
+@media(max-width:700px){.story-chapters{grid-template-columns:1fr;gap:0}.story-chapter{padding-block:24px}.story-chapter h4{font-size:27px}.story-chapter .story-eyebrow{margin-bottom:14px}}
+@media print{.story-enhanced .product-film{position:static}.story-enhanced .story-chapter{min-height:0;padding-block:20px}}
