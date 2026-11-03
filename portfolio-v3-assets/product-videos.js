@@ -7,6 +7,52 @@
   const recovery = new WeakMap();
   const dialog = document.querySelector('#product-cinema');
   const player = dialog.querySelector('video');
+  const chapters = {
+    folio: [[0, 'Upload a document'], [7.64, 'Ask a question'], [18.6, 'Inspect the source']],
+    speedway: [[0, 'Build the cart'], [8.36, 'Take payment'], [15.94, 'Review the receipt']]
+  };
+  const navigation = document.createElement('nav');
+  navigation.className = 'cinema-chapters';
+  navigation.setAttribute('aria-label', 'Walkthrough chapters');
+  const replay = document.createElement('button');
+  replay.type = 'button'; replay.className = 'cinema-replay';
+  replay.textContent = 'Replay walkthrough ↻'; replay.hidden = true;
+  document.querySelector('#cinema-description').before(navigation, replay);
+  let pendingSeek = null;
+  function seek(time) {
+    if (player.readyState < 1) pendingSeek = time;
+    else { pendingSeek = null; player.currentTime = time; }
+    play(player);
+  }
+  function updateChapters() {
+    const items = chapters[player.dataset.film] || [];
+    let current = 0;
+    items.forEach(([time], i) => { if (player.currentTime >= time) current = i; });
+    [...navigation.children].forEach((button, i) => {
+      if (i === current) button.setAttribute('aria-current', 'step');
+      else button.removeAttribute('aria-current');
+    });
+    replay.hidden = !player.ended;
+  }
+  function buildChapters(film) {
+    pendingSeek = null; navigation.replaceChildren(); replay.hidden = true;
+    chapters[film].forEach(([time, title], i) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      const number = document.createElement('span');
+      number.textContent = '0' + (i + 1); number.setAttribute('aria-hidden', 'true');
+      const label = document.createElement('span'); label.textContent = title;
+      button.append(number, label);
+      button.addEventListener('click', () => seek(time));
+      navigation.append(button);
+    });
+    updateChapters();
+  }
+  player.addEventListener('loadedmetadata', () => {
+    if (pendingSeek !== null) { player.currentTime = pendingSeek; pendingSeek = null; }
+  });
+  ['timeupdate', 'seeked', 'ended', 'play'].forEach(event => player.addEventListener(event, updateChapters));
+  replay.addEventListener('click', () => { seek(0); navigation.querySelector('button')?.focus(); });
   let opener;
   function hideRecovery(video) { recovery.get(video).hidden = true; }
   function showRecovery(video) {
@@ -72,7 +118,7 @@
     for (const entry of entries) {
       const video = entry.target;
       if (entry.intersectionRatio < 0.35) { video.pause(); continue; }
-      if (reduce.matches || document.hidden || dialog.open || started.has(video)) continue;
+      if (reduce.matches || navigator.connection?.saveData || document.hidden || dialog.open || started.has(video)) continue;
       started.add(video); video.muted = true; play(video);
     }
   }, {threshold: [0, 0.35]});
@@ -91,8 +137,11 @@
       const preview = button.closest('figure').querySelector('video');
       videos.forEach(video => video.pause());
       configure(player, preview.dataset.film); player.muted = true;
+      buildChapters(preview.dataset.film);
       document.querySelector('#cinema-title').textContent = button.dataset.watchVideo === 'folio' ? 'Folio / Document to answer' : 'Speedway / A complete checkout';
-      document.querySelector('#cinema-description').textContent = button.closest('figcaption').querySelector('span').innerText.replace(/\n/g, ' ');
+      document.querySelector('#cinema-description').textContent = preview.dataset.film === 'folio'
+        ? 'Real Folio app · Fictional handbook · AI generation wait shortened. Follow the document, question and cited passage.'
+        : 'Real Speedway app · Development profile · Sample cash sale. Follow the cart, payment and saved receipt.';
       dialog.showModal(); dialog.querySelector('.cinema-close').focus(); play(player);
     });
   });
@@ -107,6 +156,7 @@
   });
   dialog.querySelector('.cinema-close').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => {
+    pendingSeek = null; navigation.replaceChildren(); replay.hidden = true;
     revisions.set(player, (revisions.get(player) || 0) + 1);
     player.pause(); player.removeAttribute('src'); player.replaceChildren(); player.load();
     hideRecovery(player); opener?.focus({preventScroll:true});

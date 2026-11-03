@@ -131,3 +131,14 @@
 @media(max-width:1099px){#projects .project-story{grid-template-columns:1fr;gap:28px}.project-story .product-film{grid-row:1}.story-chapters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}.story-chapter h4{font-size:24px}.story-chapter>p:not(.story-eyebrow){font-size:15px}}
 @media(max-width:700px){.story-chapters{grid-template-columns:1fr;gap:0}.story-chapter{padding-block:24px}.story-chapter h4{font-size:27px}.story-chapter .story-eyebrow{margin-bottom:14px}}
 @media print{.story-enhanced .product-film{position:static}.story-enhanced .story-chapter{min-height:0;padding-block:20px}}
+
+/* Direct access to the three moments in each real product recording. */
+.cinema-chapters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:16px}
+.cinema-chapters button{display:flex;align-items:center;gap:12px;min-height:52px;padding:12px 16px;text-align:left;font:13px/1.5 var(--body,sans-serif);color:#c4ccd5;background:#ffffff03;border:1px solid #ffffff20;border-radius:8px;cursor:pointer;transition:background .2s,border-color .2s}
+.cinema-chapters button>span:first-child{font:11px var(--mono,monospace);color:#e8a0a7}
+.cinema-chapters button:hover{background:#ffffff08;border-color:#ffffff50}
+.cinema-chapters button[aria-current=step]{border-color:#e8a0a7;background:#e8a0a70b;color:#fff}
+.cinema-replay{display:block;margin:16px auto 0;min-height:44px;padding:10px 18px;border:1px solid #e8a0a7;border-radius:8px;background:#e8a0a712;color:#fff;font:14px var(--body,sans-serif);cursor:pointer}
+.cinema-chapters button:focus-visible,.cinema-replay:focus-visible{outline:2px solid #f2bec3;outline-offset:3px}
+@media(max-width:700px){.cinema-chapters{gap:6px;margin-top:12px}.cinema-chapters button{flex-direction:column;align-items:start;gap:5px;padding:10px;font-size:12px}#product-cinema video.mobile-film{height:56dvh;max-height:56dvh}}
+@media(prefers-reduced-motion:reduce){.cinema-chapters button{transition:none}}
