@@ -142,3 +142,14 @@
 .cinema-chapters button:focus-visible,.cinema-replay:focus-visible{outline:2px solid #f2bec3;outline-offset:3px}
 @media(max-width:700px){.cinema-chapters{gap:6px;margin-top:12px}.cinema-chapters button{flex-direction:column;align-items:start;gap:5px;padding:10px;font-size:12px}#product-cinema video.mobile-film{height:56dvh;max-height:56dvh}}
 @media(prefers-reduced-motion:reduce){.cinema-chapters button{transition:none}}
+
+/* A clear next step after each case study. */
+.project-next{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:36px}
+.project-next-card{display:flex;flex-direction:column;gap:12px;padding:26px 28px;border:1px solid #ffffff23;border-radius:12px;text-decoration:none;background:linear-gradient(135deg,#ffffff04,transparent);transition:border-color .25s,background .25s}
+.project-next-card .project-next-label{display:flex;justify-content:space-between;gap:20px;font:10px/1.6 var(--mono,monospace);text-transform:uppercase;letter-spacing:.08em;color:var(--project-accent,#e8a0a7)}
+.project-next-card strong{font:500 clamp(22px,2vw,28px)/1.2 var(--display,sans-serif);letter-spacing:-.025em;color:var(--paper,#eeece7)}
+.project-next-card>span:last-child{font-size:14px;line-height:1.7;color:var(--ink-muted,#b4bbc6)}
+.project-next-card:hover{border-color:var(--project-accent,#e8a0a7);background-color:#ffffff04}
+.project-next-card:focus-visible{outline:2px solid var(--project-accent,#e8a0a7);outline-offset:4px}
+@media(max-width:700px){.project-next{grid-template-columns:1fr;gap:12px;margin-top:28px}.project-next-card{padding:22px}}
+@media(prefers-reduced-motion:reduce){.project-next-card{transition:none}}
