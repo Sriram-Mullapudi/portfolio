@@ -156,3 +156,12 @@
 
 /* Keep the underlying project in place while its walkthrough is open. */
 html.cinema-open{overflow:hidden}
+
+/* Optional sound stays quiet until explicitly enabled. */
+.ambient-control{position:fixed;bottom:max(16px,env(safe-area-inset-bottom));left:20px;z-index:35;display:flex;align-items:center;gap:14px;padding:5px 12px;background:#10151df5;border:1px solid #ffffff25;border-radius:28px;box-shadow:0 4px 20px #0003;color:#d4d8df;font:11px/1.5 var(--mono,monospace)}
+.ambient-control button{background:none;border:0;padding:8px 2px;min-height:34px;font:inherit;color:inherit;cursor:pointer}
+.ambient-control button[aria-pressed=true]{color:#e8a0a7}
+.ambient-control label{display:flex;align-items:center;gap:8px;font-size:10px}
+.ambient-control input{width:76px;min-height:34px;accent-color:#e8a0a7}
+@media(max-width:700px){.ambient-control{left:12px;bottom:max(12px,env(safe-area-inset-bottom))}.ambient-control button,.ambient-control input{min-height:44px}}
+@media print{.ambient-control{display:none}}
