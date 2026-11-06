@@ -142,7 +142,8 @@
       document.querySelector('#cinema-description').textContent = preview.dataset.film === 'folio'
         ? 'Real Folio app · Fictional handbook · AI generation wait shortened. Follow the document, question and cited passage.'
         : 'Real Speedway app · Development profile · Sample cash sale. Follow the cart, payment and saved receipt.';
-      dialog.showModal(); dialog.querySelector('.cinema-close').focus(); play(player);
+      dialog.showModal(); document.documentElement.classList.add('cinema-open');
+      dialog.querySelector('.cinema-close').focus(); play(player);
     });
   });
   phone.addEventListener('change', () => {
@@ -156,6 +157,7 @@
   });
   dialog.querySelector('.cinema-close').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => {
+    document.documentElement.classList.remove('cinema-open');
     pendingSeek = null; navigation.replaceChildren(); replay.hidden = true;
     revisions.set(player, (revisions.get(player) || 0) + 1);
     player.pause(); player.removeAttribute('src'); player.replaceChildren(); player.load();

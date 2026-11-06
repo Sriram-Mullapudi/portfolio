@@ -12,6 +12,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
   for (const [film, time] of [['folio',18.6], ['speedway',15.94]]) {
    await page.locator(`[data-watch-video="${film}"]`).click();
    await page.waitForFunction(() => document.querySelector('#product-cinema video').readyState >= 1);
+   assert.equal(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), 'hidden');
    const chapters = page.locator('.cinema-chapters button');
    assert.equal(await chapters.count(), 3);
    await chapters.nth(2).click();
@@ -24,6 +25,7 @@ const {chromium} = require(process.env.PLAYWRIGHT_MODULE || 'playwright');
    assert(await chapters.first().evaluate(button => button === document.activeElement));
    await page.keyboard.press('Escape');
    assert.equal(await chapters.count(), 0);
+   assert.notEqual(await page.evaluate(() => getComputedStyle(document.documentElement).overflow), 'hidden');
   }
   await page.emulateMedia({reducedMotion:'no-preference'});
   await page.addInitScript(() => Object.defineProperty(navigator, 'connection', {value:{saveData:true}, configurable:true}));

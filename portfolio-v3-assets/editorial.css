@@ -153,3 +153,6 @@
 .project-next-card:focus-visible{outline:2px solid var(--project-accent,#e8a0a7);outline-offset:4px}
 @media(max-width:700px){.project-next{grid-template-columns:1fr;gap:12px;margin-top:28px}.project-next-card{padding:22px}}
 @media(prefers-reduced-motion:reduce){.project-next-card{transition:none}}
+
+/* Keep the underlying project in place while its walkthrough is open. */
+html.cinema-open{overflow:hidden}
