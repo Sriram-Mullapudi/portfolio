@@ -3,9 +3,31 @@ const {chromium}=require(process.env.PLAYWRIGHT_MODULE || 'playwright');const as
 const http=require('node:http'),fs=require('node:fs'),path=require('node:path');
 const root=path.resolve(__dirname,'..');
 const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+decodeURIComponent(new URL(req.url,'http://local').pathname));if(!file.startsWith(root+path.sep)){res.writeHead(403).end();return}fs.readFile(file,(error,data)=>{if(error){res.writeHead(404).end();return}res.setHeader('Content-Type',file.endsWith('.mp3')?'audio/mpeg':file.endsWith('.js')?'text/javascript':file.endsWith('.css')?'text/css':file.endsWith('.html')?'text/html':'application/octet-stream');res.end(data)})});
-(async()=>{await new Promise(r=>server.listen(0,'127.0.0.1',r));const b=await chromium.launch({headless:true,channel:'msedge'});try{const p=await b.newPage({viewport:{width:390,height:844}});const errors=[];p.on('pageerror',e=>errors.push(e.message));await p.addInitScript(()=>{const Original=window.AudioContext;window.__audio=[];window.AudioContext=class extends Original{constructor(...args){super(...args);window.__audio.push(this)} createGain(){const gain=super.createGain();if(!this.testMaster)this.testMaster=gain;return gain}}});await p.goto('http://127.0.0.1:'+server.address().port+'/index.html');assert.equal(await p.evaluate(()=>window.__audio.length),0);assert.equal(await p.locator('audio').count(),0);const button=p.locator('#ambient-toggle');await button.click();await p.waitForTimeout(1800);assert.equal(await button.getAttribute('aria-pressed'),'true');assert.equal(await p.evaluate(()=>window.__audio[0].state),'running');await p.waitForFunction(()=>window.__audio[0].testMaster.gain.value>.3);
-await p.waitForFunction(()=>document.querySelector('audio').currentTime>1);
-const peak=await p.evaluate(async()=>{const c=window.__audio[0],a=c.createAnalyser();c.testMaster.connect(a);await new Promise(r=>setTimeout(r,100));const data=new Float32Array(a.fftSize);a.getFloatTimeDomainData(data);c.testMaster.disconnect(a);return Math.max(...data.map(Math.abs))});assert(peak>0&&peak<.5,'Quiet nonzero signal '+peak);
-await p.locator('#ambient-volume').fill('0.1');await p.waitForTimeout(250);assert(await p.evaluate(()=>window.__audio[0].testMaster.gain.value<.11));
-await p.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))});await p.waitForTimeout(200);assert.equal(await p.evaluate(()=>window.__audio[0].state),'suspended');await p.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:false});document.dispatchEvent(new Event('visibilitychange'))});await p.waitForTimeout(200);assert.equal(await p.evaluate(()=>window.__audio[0].state),'running');await button.click();await p.waitForTimeout(650);assert.equal(await p.evaluate(()=>window.__audio[0].state),'suspended');assert.equal(await p.locator('#ambient-settings').isVisible(),false);await button.click();await button.click();await button.click();await p.waitForTimeout(700);assert.equal(await p.evaluate(()=>window.__audio.length),1);assert.equal(await p.evaluate(()=>window.__audio[0].state),'running');assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));assert.deepEqual(errors,[]);console.log('PASS: silent initial load, quiet audio signal, volume, fade-off suspension, visibility pause/resume, rapid toggling, mobile layout. Peak '+peak);}finally{await b.close();server.close()}})().catch(e=>{console.error(e);process.exit(1)});
-
+(async()=>{
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ try {
+  for(const policy of ['no-user-gesture-required','document-user-activation-required']){
+   const browser=await chromium.launch({headless:true,channel:'msedge',args:['--autoplay-policy='+policy]});
+   try {
+    const page=await browser.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+    await page.goto('http://127.0.0.1:'+server.address().port+'/index.html');
+    const button=page.locator('#ambient-toggle');
+    if(policy==='document-user-activation-required'){
+     await page.waitForTimeout(600);assert.equal(await button.textContent(),'♫ Play music');
+     assert(await page.locator('audio').evaluate(a=>a.paused));await button.click();
+    }
+    await page.waitForFunction(()=>document.querySelector('audio').currentTime>.2);
+    await page.waitForFunction(()=>document.querySelector('#ambient-toggle').getAttribute('aria-pressed')==='true');
+    await button.click();await page.waitForTimeout(650);assert(await page.locator('audio').evaluate(a=>a.paused));
+    assert.equal(await button.textContent(),'♫ Sound off');
+    await button.click();await page.waitForFunction(()=>!document.querySelector('audio').paused);
+    await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:true});document.dispatchEvent(new Event('visibilitychange'))});
+    await page.waitForTimeout(200);assert(await page.locator('audio').evaluate(a=>a.paused));
+    await page.evaluate(()=>{Object.defineProperty(document,'hidden',{configurable:true,value:false});document.dispatchEvent(new Event('visibilitychange'))});
+    await page.waitForFunction(()=>!document.querySelector('audio').paused);
+    assert.equal(await page.locator('audio').count(),1);assert.deepEqual(errors,[]);
+   }finally{await browser.close()}
+  }
+  console.log('PASS: default playback when allowed, blocked-autoplay play fallback, toggle, visibility pause/resume.');
+ }finally{server.close()}
+})().catch(e=>{console.error(e);process.exit(1)});

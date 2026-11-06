@@ -1,12 +1,12 @@
-/* User-supplied soundtrack. Loaded only after an explicit sound-button click. */
+/* User-supplied soundtrack. Default-on playback with an explicit play fallback when autoplay is blocked. */
 (() => {
   const button = document.querySelector('#ambient-toggle');
   const volume = document.querySelector('#ambient-volume');
   const settings = document.querySelector('#ambient-settings');
-  let context, master, track, enabled = false, revision = 0;
+  let context, master, track, enabled = true, waiting = true, revision = 0;
   function render() {
-    button.setAttribute('aria-pressed', String(enabled));
-    button.textContent = enabled ? '♫ Sound on' : '♫ Sound off';
+    button.setAttribute('aria-pressed', String(enabled && !waiting));
+    button.textContent = enabled ? (waiting ? '♫ Play music' : '♫ Sound on') : '♫ Sound off';
     settings.hidden = !enabled;
   }
   function create() {
@@ -46,20 +46,22 @@
     try {
       await Promise.all([context.resume(), track.play()]);
       if (!enabled || document.hidden) track.pause();
-      if (current === revision && enabled && !document.hidden) fade(Number(volume.value), 1.5);
-    } catch {
-      if (current === revision) { enabled = false; track.pause(); render(); button.textContent = '♫ Retry sound'; }
+      if (current === revision && enabled && !document.hidden) { waiting = false; render(); fade(Number(volume.value), 1.5); }
+    } catch (error) {
+      if (current === revision) { waiting = true; track.pause(); render(); if (error.name !== 'NotAllowedError') { enabled = false; render(); button.textContent = '♫ Retry sound'; } }
     }
   }
   button.addEventListener('click', () => {
     try { if (!context) create(); }
     catch { button.textContent = 'Sound unavailable'; button.disabled = true; return; }
     if (track.error) track.load();
-    enabled = !enabled; render(); void sync();
+    enabled = waiting || !enabled; waiting = enabled; render(); void sync();
   });
   volume.addEventListener('input', () => { if (context && enabled) fade(Number(volume.value), .15); });
   document.addEventListener('visibilitychange', () => { void sync(); });
   window.addEventListener('pagehide', () => { if (context) { track.pause(); context.suspend().catch(() => {}); } });
-  window.addEventListener('pageshow', () => { if (context) void sync(); });
+  window.addEventListener('pageshow', event => { if (context && event.persisted) void sync(); });
   render();
+  try { create(); void sync(); }
+  catch { enabled = false; render(); button.textContent = 'Sound unavailable'; button.disabled = true; }
 })();
