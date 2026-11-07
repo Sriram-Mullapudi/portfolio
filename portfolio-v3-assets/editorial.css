@@ -165,3 +165,13 @@ html.cinema-open{overflow:hidden}
 .ambient-control input{width:76px;min-height:34px;accent-color:#e8a0a7}
 @media(max-width:700px){.ambient-control{left:12px;bottom:max(12px,env(safe-area-inset-bottom))}.ambient-control button,.ambient-control input{min-height:44px}}
 @media print{.ambient-control{display:none}}
+
+/* A one-time, non-modal invitation when audible autoplay is blocked. */
+.music-notice{position:fixed;left:20px;bottom:calc(86px + env(safe-area-inset-bottom));z-index:36;width:min(340px,calc(100vw - 40px));padding:22px;border:1px solid #e8a0a74d;border-radius:16px;background:#11171ff5;box-shadow:0 12px 40px #0006;color:#eeece7}
+.music-notice strong{display:block;font:500 19px/1.3 var(--display,sans-serif);letter-spacing:-.02em}
+.music-notice p{margin:10px 0 18px;color:#b9c1cc;font:14px/1.65 var(--body,sans-serif)}
+.music-notice-actions{display:flex;gap:10px;flex-wrap:wrap}
+.music-notice-actions button{min-height:44px;padding:10px 15px;border:1px solid #ffffff30;border-radius:8px;color:#eeece7;background:transparent;font:13px var(--body,sans-serif);cursor:pointer}
+#music-notice-play{background:#e8a0a7;color:#151018;border-color:#e8a0a7}
+@media(max-width:700px){.music-notice{left:12px;width:min(340px,calc(100vw - 24px));padding:20px}}
+@media print{.music-notice{display:none}}

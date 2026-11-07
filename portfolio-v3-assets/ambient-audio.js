@@ -3,11 +3,16 @@
   const button = document.querySelector('#ambient-toggle');
   const volume = document.querySelector('#ambient-volume');
   const settings = document.querySelector('#ambient-settings');
+  const notice = document.querySelector('#music-notice');
+  let blocked = false, dismissed = false;
   let context, master, track, enabled = true, waiting = true, revision = 0;
   function render() {
     button.setAttribute('aria-pressed', String(enabled && !waiting));
     button.textContent = enabled ? (waiting ? '♫ Play music' : '♫ Sound on') : '♫ Sound off';
     settings.hidden = !enabled;
+    const showNotice = enabled && waiting && blocked && !dismissed;
+    if (!showNotice && notice.contains(document.activeElement)) button.focus({preventScroll:true});
+    notice.hidden = !showNotice;
   }
   function create() {
     const Audio = window.AudioContext || window.webkitAudioContext;
@@ -46,9 +51,9 @@
     try {
       await Promise.all([context.resume(), track.play()]);
       if (!enabled || document.hidden) track.pause();
-      if (current === revision && enabled && !document.hidden) { waiting = false; render(); fade(Number(volume.value), 1.5); }
+      if (current === revision && enabled && !document.hidden) { waiting = false; blocked = false; render(); fade(Number(volume.value), 1.5); }
     } catch (error) {
-      if (current === revision) { waiting = true; track.pause(); render(); if (error.name !== 'NotAllowedError') { enabled = false; render(); button.textContent = '♫ Retry sound'; } }
+      if (current === revision) { waiting = true; blocked = error.name === 'NotAllowedError'; track.pause(); render(); if (error.name !== 'NotAllowedError') { enabled = false; render(); button.textContent = '♫ Retry sound'; } }
     }
   }
   button.addEventListener('click', () => {
@@ -57,12 +62,16 @@
     if (track.error) track.load();
     enabled = waiting || !enabled; waiting = enabled; render(); void sync();
   });
+  document.querySelector('#music-notice-play').addEventListener('click', () => { button.click(); });
+  document.querySelector('#music-notice-dismiss').addEventListener('click', () => {
+    dismissed = true; enabled = false; waiting = false; render(); void sync();
+  });
   volume.addEventListener('input', () => { if (context && enabled) fade(Number(volume.value), .15); });
   // Retry blocked autoplay inside an actual user gesture, without requiring
   // a dedicated music-button click. Never undo an explicit mute choice.
   function startOnInteraction(event) {
     if (!event.isTrusted || !context || !enabled || !waiting || document.hidden) return;
-    if (event.target instanceof Element && event.target.closest('.ambient-control')) return;
+    if (event.target instanceof Element && event.target.closest('.ambient-control, .music-notice')) return;
     if (event.type === 'keydown' && (event.repeat || event.ctrlKey || event.metaKey || event.altKey || ['Shift', 'Control', 'Alt', 'Meta', 'Escape'].includes(event.key))) return;
     void sync();
   }

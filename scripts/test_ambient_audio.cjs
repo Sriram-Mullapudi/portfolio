@@ -14,10 +14,11 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
     const button=page.locator('#ambient-toggle');
     if(policy==='document-user-activation-required'){
      await page.waitForTimeout(600);assert.equal(await button.textContent(),'♫ Play music');
-     assert(await page.locator('audio').evaluate(a=>a.paused));await page.locator('h1').click();
+     assert(await page.locator('audio').evaluate(a=>a.paused));assert(await page.locator('#music-notice').isVisible());await page.locator('#music-notice-play').click();
     }
     await page.waitForFunction(()=>document.querySelector('audio').currentTime>.2);
     await page.waitForFunction(()=>document.querySelector('#ambient-toggle').getAttribute('aria-pressed')==='true');
+    assert(!(await page.locator('#music-notice').isVisible()));
     await button.click();await page.waitForTimeout(650);assert(await page.locator('audio').evaluate(a=>a.paused));
     assert.equal(await button.textContent(),'♫ Sound off');
     await page.locator('h1').click();await page.keyboard.press('Tab');await page.waitForTimeout(200);
@@ -31,10 +32,16 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
      const keyboardPage=await browser.newPage();await keyboardPage.goto('http://127.0.0.1:'+server.address().port+'/index.html');
      await keyboardPage.waitForTimeout(500);await keyboardPage.keyboard.press('Tab');
      await keyboardPage.waitForFunction(()=>document.querySelector('audio').currentTime>.1);await keyboardPage.close();
+     const quietPage=await browser.newPage({viewport:{width:390,height:844}});await quietPage.goto('http://127.0.0.1:'+server.address().port+'/index.html');
+     await quietPage.locator('#music-notice').waitFor({state:'visible'});
+     const rect=await quietPage.locator('#music-notice').boundingBox();assert(rect.x>=0&&rect.x+rect.width<=390);
+     await quietPage.locator('#music-notice-dismiss').click();await quietPage.locator('h1').click();await quietPage.keyboard.press('Tab');await quietPage.waitForTimeout(600);
+     assert(await quietPage.locator('audio').evaluate(a=>a.paused));assert(!(await quietPage.locator('#music-notice').isVisible()));
+     await quietPage.locator('#ambient-toggle').click();await quietPage.waitForFunction(()=>!document.querySelector('audio').paused);await quietPage.close();
     }
     assert.equal(await page.locator('audio').count(),1);assert.deepEqual(errors,[]);
    }finally{await browser.close()}
   }
-  console.log('PASS: default playback when allowed, blocked-autoplay pointer/keyboard fallback, mute persistence, toggle, visibility pause/resume.');
+  console.log('PASS: default playback when allowed, blocked-autoplay prompt, play/dismiss, keyboard fallback, mute persistence, toggle, visibility pause/resume.');
  }finally{server.close()}
 })().catch(e=>{console.error(e);process.exit(1)});
