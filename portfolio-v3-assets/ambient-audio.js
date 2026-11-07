@@ -58,6 +58,16 @@
     enabled = waiting || !enabled; waiting = enabled; render(); void sync();
   });
   volume.addEventListener('input', () => { if (context && enabled) fade(Number(volume.value), .15); });
+  // Retry blocked autoplay inside an actual user gesture, without requiring
+  // a dedicated music-button click. Never undo an explicit mute choice.
+  function startOnInteraction(event) {
+    if (!event.isTrusted || !context || !enabled || !waiting || document.hidden) return;
+    if (event.target instanceof Element && event.target.closest('.ambient-control')) return;
+    if (event.type === 'keydown' && (event.repeat || event.ctrlKey || event.metaKey || event.altKey || ['Shift', 'Control', 'Alt', 'Meta', 'Escape'].includes(event.key))) return;
+    void sync();
+  }
+  document.addEventListener('pointerup', startOnInteraction);
+  document.addEventListener('keydown', startOnInteraction);
   document.addEventListener('visibilitychange', () => { void sync(); });
   window.addEventListener('pagehide', () => { if (context) { track.pause(); context.suspend().catch(() => {}); } });
   window.addEventListener('pageshow', event => { if (context && event.persisted) void sync(); });
