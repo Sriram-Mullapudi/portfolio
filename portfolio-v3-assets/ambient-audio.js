@@ -6,6 +6,20 @@
   const notice = document.querySelector('#music-notice');
   let blocked = false, dismissed = false;
   let context, master, track, enabled = true, waiting = true, revision = 0;
+  // Storage is optional: restrictive/private browser settings must not break audio.
+  try {
+    const saved = localStorage.getItem('portfolio-music-volume');
+    const value = Number(saved);
+    if (saved !== null && saved.trim() !== '' && Number.isFinite(value) && value >= 0 && value <= 1) volume.value = String(value);
+  } catch {}
+  try {
+    if (sessionStorage.getItem('portfolio-music-enabled') === 'false') {
+      enabled = false; waiting = false; dismissed = true;
+    }
+  } catch {}
+  function rememberChoice() {
+    try { sessionStorage.setItem('portfolio-music-enabled', String(enabled)); } catch {}
+  }
   function render() {
     button.setAttribute('aria-pressed', String(enabled && !waiting));
     button.textContent = enabled ? (waiting ? '♫ Play music' : '♫ Sound on') : '♫ Sound off';
@@ -60,13 +74,16 @@
     try { if (!context) create(); }
     catch { button.textContent = 'Sound unavailable'; button.disabled = true; return; }
     if (track.error) track.load();
-    enabled = waiting || !enabled; waiting = enabled; render(); void sync();
+    enabled = waiting || !enabled; waiting = enabled; rememberChoice(); render(); void sync();
   });
   document.querySelector('#music-notice-play').addEventListener('click', () => { button.click(); });
   document.querySelector('#music-notice-dismiss').addEventListener('click', () => {
-    dismissed = true; enabled = false; waiting = false; render(); void sync();
+    dismissed = true; enabled = false; waiting = false; rememberChoice(); render(); void sync();
   });
-  volume.addEventListener('input', () => { if (context && enabled) fade(Number(volume.value), .15); });
+  volume.addEventListener('input', () => {
+    try { localStorage.setItem('portfolio-music-volume', volume.value); } catch {}
+    if (context && enabled) fade(Number(volume.value), .15);
+  });
   // Retry blocked autoplay inside an actual user gesture, without requiring
   // a dedicated music-button click. Never undo an explicit mute choice.
   function startOnInteraction(event) {
@@ -81,6 +98,6 @@
   window.addEventListener('pagehide', () => { if (context) { track.pause(); context.suspend().catch(() => {}); } });
   window.addEventListener('pageshow', event => { if (context && event.persisted) void sync(); });
   render();
-  try { create(); void sync(); }
+  try { if (enabled) { create(); void sync(); } }
   catch { enabled = false; render(); button.textContent = 'Sound unavailable'; button.disabled = true; }
 })();
