@@ -20,11 +20,13 @@ const server=http.createServer((req,res)=>{const file=path.resolve(root,'.'+deco
     await page.waitForFunction(()=>document.querySelector('#ambient-toggle').getAttribute('aria-pressed')==='true');
     assert(!(await page.locator('#music-notice').isVisible()));
     await page.locator('#ambient-volume').fill('0.2');
+    assert.equal(await page.locator('#ambient-volume-percent').textContent(), '20%');
     await button.click();await page.waitForTimeout(650);assert(await page.locator('audio').evaluate(a=>a.paused));
     assert.equal(await button.textContent(),'♫ Sound off');
     await page.locator('h1').click();await page.keyboard.press('Tab');await page.waitForTimeout(200);
     assert(await page.locator('audio').evaluate(a=>a.paused),'Ordinary interactions must not undo mute');
     await page.reload();assert.equal(await page.locator('audio').count(),0);
+    assert.equal(await page.locator('#ambient-volume').getAttribute('aria-valuetext'), '20%');
     assert.equal(await page.locator('#ambient-volume').inputValue(),'0.2');assert.equal(await button.textContent(),'♫ Sound off');
     await page.locator('h1').click();assert.equal(await page.locator('audio').count(),0);
     await button.click();await page.waitForFunction(()=>!document.querySelector('audio').paused);

@@ -17,6 +17,12 @@
       enabled = false; waiting = false; dismissed = true;
     }
   } catch {}
+  function displayVolume() {
+    const percent = `${Math.round(Number(volume.value) * 100)}%`;
+    document.querySelector('#ambient-volume-percent').textContent = percent;
+    volume.setAttribute('aria-valuetext', percent);
+  }
+  displayVolume();
   function rememberChoice() {
     try { sessionStorage.setItem('portfolio-music-enabled', String(enabled)); } catch {}
   }
@@ -81,6 +87,7 @@
     dismissed = true; enabled = false; waiting = false; rememberChoice(); render(); void sync();
   });
   volume.addEventListener('input', () => {
+    displayVolume();
     try { localStorage.setItem('portfolio-music-volume', volume.value); } catch {}
     if (context && enabled) fade(Number(volume.value), .15);
   });
