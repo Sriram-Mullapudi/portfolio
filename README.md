@@ -6,7 +6,11 @@ Personal software engineering portfolio featuring experience, engineering case s
 
 ## Run locally
 
-Open this folder in VS Code and use Live Server on `index.html`, or run:
+Open this folder in VS Code, choose **Terminal → Run Task… → Preview portfolio**,
+then open [the local preview](http://127.0.0.1:8000/). The task uses Python and
+runs until you stop it with **Terminal → Terminate Task…**.
+
+You can also use Live Server on `index.html` or run the same command yourself:
 
 ```sh
 python -m http.server 8000 --bind 127.0.0.1
