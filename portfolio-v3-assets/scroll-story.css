@@ -73,3 +73,26 @@
 }
 @media(max-width:820px){.showcase-stage{margin-top:22px;padding:4px 8px 12px}}
 @media(prefers-reduced-motion:reduce),print{.showcase-assembly::before,.showcase-assembly::after{display:none}.showcase-stage{padding:0}.showcase-assembly{transform:none!important}}
+
+/* A detail from each recorded workflow sits in front of its app window. */
+.showcase-excerpt{position:relative;display:block;z-index:2;width:min(255px,90%);margin:-12px 0 0 auto;padding:15px 18px;text-align:left;line-height:1.45;pointer-events:none;box-sizing:border-box}
+.excerpt-heading,.excerpt-source,.receipt-row{display:flex;justify-content:space-between;gap:12px;font:11px/1.5 var(--mono,monospace)}
+.excerpt-heading{font-weight:600;margin-bottom:8px}
+.folio-excerpt{border-radius:8px;background:#f1eaf3;color:#362b3b;border-inline-start:3px solid #ad82b4;box-shadow:0 8px 22px #0004}
+.folio-excerpt q{display:block;font:15px/1.42 Georgia,serif}
+.excerpt-source{margin-top:9px;color:#665a6a;font-size:10px}
+.receipt-excerpt{background:#f1eadb;color:#393428;border-radius:3px 3px 0 0;box-shadow:0 8px 22px #0004}
+.receipt-excerpt::after{content:"";position:absolute;top:100%;inset-inline:0;height:5px;background:linear-gradient(135deg,#f1eadb 25%,transparent 25%) 0 0/10px 10px,linear-gradient(225deg,#f1eadb 25%,transparent 25%) 0 0/10px 10px}
+.receipt-excerpt .excerpt-heading{padding-bottom:6px;border-bottom:1px dashed #746950}
+.receipt-row strong{font:600 15px var(--mono,monospace)}
+@media(min-width:821px) and (min-height:620px) and (prefers-reduced-motion:no-preference){
+ .story-enabled .showcase-stage{padding:8px 24px 34px 8px}
+ .story-enabled .showcase-excerpt{position:absolute;right:0;bottom:0;margin:0;width:clamp(190px,18vw,255px);transform:translate3d(4px,21px,45px) rotateZ(-1.5deg);transition:transform .35s ease-out}
+ .story-enabled .selected-card:is(:hover,:focus-visible) .showcase-excerpt{transform:translate3d(2px,15px,62px) rotateZ(0deg)}
+}
+@media(max-width:820px),(prefers-reduced-motion:reduce){.showcase-excerpt{margin:14px 0 0;width:100%;box-shadow:none}}
+@media(max-width:820px){
+ .showcase-assembly{transform:none}
+ .showcase-assembly::before,.showcase-assembly::after{display:none}
+}
+@media(max-width:820px) and (prefers-reduced-motion:no-preference){.showcase-assembly .showcase-device{transform:rotateX(3deg) rotateY(-4deg)}}
