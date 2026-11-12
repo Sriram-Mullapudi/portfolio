@@ -1,0 +1,10 @@
+/* The same paths carry both the static routes and the moving payment signal. */
+.trace:has(.board-scene){padding:clamp(16px,2vw,28px);border:1px solid #354344;border-radius:14px;background:linear-gradient(140deg,#111a1e,#101418 70%)}
+.board-scene.event-scene{background:radial-gradient(ellipse at 50% 70%,#23403c55,transparent 70%),#10191c;border:1px solid #344342;border-radius:10px;padding:0;overflow:hidden;margin:8px 0 20px}
+.board-scene .payment-board{display:block;width:100%;height:auto;max-height:none;margin:0}
+.board-route,.board-signal{fill:none;stroke-linecap:round;stroke-linejoin:round}.board-route{stroke:#789d92;stroke-width:2}.board-route[data-route="3"]{stroke:#9a806360;stroke-dasharray:3 4}.board-retry .board-route[data-route="3"]{stroke:#e0aa72}
+.board-signal{stroke:#a2ffda;stroke-width:4;stroke-dasharray:12 105;opacity:0;filter:drop-shadow(0 0 4px #7fffd8)}.board-signal[data-signal="3"]{stroke:#ffcb8b}
+.board-platform{filter:drop-shadow(0 9px 5px #0006)}.board-node .tile-left{fill:#32463f;stroke:#6b8071;stroke-width:.7}.board-node .tile-right{fill:#1f302f;stroke:#53695f;stroke-width:.7}.board-node .tile-top{fill:#31423e;stroke:#83998b;stroke-width:1}.board-node .board-platform>g:nth-child(3) .tile-top{fill:#43554d;stroke:#abc1ad}
+.board-node .tile-icon{fill:none;stroke:#e3f1d7;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}.board-scene .board-node text{fill:#d6ded8;font:14px var(--mono,monospace);text-anchor:middle;paint-order:stroke;stroke:#10191c;stroke-width:4px}
+.board-node.trace-current .board-platform>g:nth-child(3) .tile-top{fill:#446d59;stroke:#afffd4;stroke-width:2}.board-retry .board-node:last-child .board-platform>g:nth-child(3) .tile-top{stroke:#ffd39a}
+@media(max-width:520px){.board-scene .payment-board{min-height:130px}.board-scene .board-node text{font-size:21px}.trace:has(.board-scene) .trace-head{margin-bottom:12px}}

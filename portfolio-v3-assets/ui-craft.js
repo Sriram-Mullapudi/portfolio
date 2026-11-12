@@ -67,11 +67,39 @@ qa('.architecture').forEach((arch,index)=>{
  function reflect(){const selected=nodes.map((n,i)=>n.classList.contains('diagram-active')?i:-1).filter(i=>i>=0),key=selected.join(',');if(key===state)return;state=key;stop(arch);edges.forEach(e=>{const active=selected.includes(e.to);e.base.style.stroke=active?'#c7848c':'#4a5665';if(active)signal(e)});if(index===1&&selected.includes(2)){edges.slice().reverse().forEach((e,i)=>signal(e,true,820+i*240))}}
  new MutationObserver(reflect).observe(flow,{subtree:true,attributes:true,attributeFilter:['class']});layout();
 });
-// Payment trace stays driven by its existing state and existing retry text.
-const event=q('.event-scene'),eventSvg=q('svg',event),packet=svgEl('circle',{'class':'trace-packet',r:3.5,cx:60,cy:53,opacity:0});eventSvg.append(packet);let paymentStep=-1;
-const paymentNodes=qa('.event-node',event),traceItems=qa('#trace-flow li');
-function paymentState(){const count=traceItems.filter(n=>n.classList.contains('active')).length;if(count===paymentStep)return;paymentStep=count;traceItems.forEach((n,i)=>{n.classList.toggle('trace-current',i===count-1);n.classList.toggle('trace-retrying',i===3&&count===4&&q('#trace-log').textContent.includes('times out'))});paymentNodes.forEach((n,i)=>n.classList.toggle('trace-current',i===Math.min(count-1,3)));stop(event);const xs=[60,249,446,640,640];if(count>1&&count<5){packet.setAttribute('cx',xs[count-2]);animate(packet,[{translate:'0 0',opacity:0},{opacity:1,offset:.1},{translate:`${xs[count-1]-xs[count-2]}px 0`,opacity:0}],{duration:580,easing:'linear'},event)}if(count===4&&q('#trace-log').textContent.includes('times out'))animate(paymentNodes[3],[{opacity:1},{opacity:.4},{opacity:1}],{duration:600},event)}
-new MutationObserver(paymentState).observe(q('#trace-flow'),{subtree:true,attributes:true,attributeFilter:['class']});
+// Route highlights follow the same trace steps as the accessible text log.
+const board = q('.board-scene');
+const traceItems = qa('#trace-flow li');
+const boardNodes = qa('.board-node', board);
+const signals = qa('.board-signal', board);
+let previousCount = -1;
+let previousRetry = false;
+function paymentState() {
+  const count = traceItems.filter(item => item.classList.contains('active')).length;
+  const retry = q('#trace-log').textContent.includes('times out');
+  if (count === previousCount && retry === previousRetry) return;
+  previousCount = count;
+  previousRetry = retry;
+  traceItems.forEach((item, i) => {
+    item.classList.toggle('trace-current', i === count - 1);
+    item.classList.toggle('trace-retrying', retry && i === 3 && count === 4);
+  });
+  boardNodes.forEach((node, i) => node.classList.toggle('trace-current', i === Math.min(count - 1, 3)));
+  board.classList.toggle('board-retry', retry && count >= 4);
+  stop(board);
+  const signal = count === 5 && retry ? signals[3] : count >= 2 && count <= 4 ? signals[count - 2] : null;
+  if (signal) animate(signal, [{strokeDashoffset:12,opacity:0}, {opacity:1,offset:.12}, {strokeDashoffset:-100,opacity:0}], {duration:600,easing:'linear'}, board);
+}
+new MutationObserver(paymentState).observe(q('#trace-flow'), {subtree:true,attributes:true,attributeFilter:['class']});
+const boardEntrance = new IntersectionObserver(entries => {
+  if (!entries.some(entry => entry.isIntersecting)) return;
+  boardEntrance.disconnect();
+  if (previousCount > 0) return;
+  signals.slice(0,3).forEach((signal,i) => animate(signal,
+    [{strokeDashoffset:12,opacity:0},{opacity:.85,offset:.15},{strokeDashoffset:-100,opacity:0}],
+    {duration:700,delay:i*550,easing:'linear'}, board));
+}, {threshold:.5});
+boardEntrance.observe(board);
 // Five decorative connected layers map to the five existing toolkit categories.
 const toolkit=q('.toolkit-layout'),rows=qa('.skill-row',toolkit),layerSvg=svgEl('svg',{'class':'connected-layers','viewBox':'0 0 300 170','aria-hidden':'true'});
 const wire=svgEl('path',{'class':'stack-wire',d:'M24 20 V150'}),pulse=svgEl('path',{'class':'stack-pulse',d:'M24 20 V150',pathLength:100});layerSvg.append(wire,pulse);
