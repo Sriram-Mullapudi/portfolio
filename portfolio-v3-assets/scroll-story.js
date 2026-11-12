@@ -30,3 +30,33 @@ cards.forEach((card,i)=>card.addEventListener('focus',()=>{if(media.matches)sele
 function sync(){scene.classList.toggle('story-enabled',media.matches);hero.classList.toggle('story-hero',media.matches);controls.hidden=!media.matches;if(!media.matches){scene.style.removeProperty('--story-x');cards.forEach(card=>{card.style.removeProperty('pointer-events');card.style.removeProperty('z-index')})}schedule()}
 addEventListener('scroll',schedule,{passive:true});addEventListener('resize',schedule);media.addEventListener('change',sync);new ResizeObserver(schedule).observe(scene);sync();
 })();
+
+// Pointer tilt is confined to the showcase and composes with its scroll angle.
+(() => {
+  const pointer = matchMedia('(min-width:821px) and (min-height:620px) and (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference)');
+  document.querySelectorAll('.showcase-stage').forEach(stage => {
+    let frame = 0;
+    let x = 0, y = 0;
+    function reset() {
+      cancelAnimationFrame(frame);
+      frame = 0;
+      stage.style.removeProperty('--tilt-x');
+      stage.style.removeProperty('--tilt-y');
+    }
+    stage.addEventListener('pointermove', event => {
+      if (!pointer.matches || event.pointerType !== 'mouse') return;
+      x = event.clientX;
+      y = event.clientY;
+      if (frame) return;
+      frame = requestAnimationFrame(() => {
+        frame = 0;
+        const bounds = stage.getBoundingClientRect();
+        stage.style.setProperty('--tilt-x', `${(.5 - (y - bounds.top) / bounds.height) * 8}deg`);
+        stage.style.setProperty('--tilt-y', `${((x - bounds.left) / bounds.width - .5) * 12}deg`);
+      });
+    }, {passive:true});
+    stage.addEventListener('pointerleave', reset);
+    stage.addEventListener('pointercancel', reset);
+    pointer.addEventListener('change', reset);
+  });
+})();

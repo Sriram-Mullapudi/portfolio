@@ -57,3 +57,19 @@
  .selected-grid{display:grid!important;grid-template-columns:1fr!important}.selected-card{grid-area:auto!important;opacity:1!important;pointer-events:auto!important;height:auto!important}
  .showcase-copy,.showcase-device{transform:none!important;opacity:1!important}.showcase-window{overflow:visible!important}
 }
+
+/* The app face and two inset plates share a single perspective projection. */
+.showcase-stage{min-width:0;padding:10px 8px 14px;perspective:1100px;--plate-tint:#b2799f}
+[data-system="integrity"] .showcase-stage{--plate-tint:#c49b63}
+.showcase-assembly{position:relative;transform-style:preserve-3d}
+.showcase-assembly::before,.showcase-assembly::after{content:"";position:absolute;inset:0;border-radius:12px;pointer-events:none;border:1px solid var(--plate-tint);background:#181c24}
+.showcase-assembly::before{transform:translate3d(12px,12px,-28px);opacity:.45}
+.showcase-assembly::after{transform:translate3d(6px,6px,-14px);opacity:.8}
+.showcase-assembly .showcase-device{position:relative;z-index:1;margin:0}
+@media(prefers-reduced-motion:no-preference){
+ .showcase-assembly{transform:rotateX(3deg) rotateY(-4deg)}
+ .story-enabled .showcase-assembly{transform:translateX(var(--device-x,0px)) rotateX(calc(5deg + var(--tilt-x,0deg))) rotateY(calc(-8deg + var(--device-angle,0deg) + var(--tilt-y,0deg))) scale(var(--device-scale,1));transition:transform .18s ease-out}
+ .story-enabled .showcase-assembly .showcase-device{transform:translateZ(5px);box-shadow:0 18px 38px #0005}
+}
+@media(max-width:820px){.showcase-stage{margin-top:22px;padding:4px 8px 12px}}
+@media(prefers-reduced-motion:reduce),print{.showcase-assembly::before,.showcase-assembly::after{display:none}.showcase-stage{padding:0}.showcase-assembly{transform:none!important}}
