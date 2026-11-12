@@ -31,8 +31,9 @@
     button.textContent = enabled ? (waiting ? '♫ Play music' : '♫ Sound on') : '♫ Sound off';
     settings.hidden = !enabled;
     const showNotice = enabled && waiting && blocked && !dismissed;
-    if (!showNotice && notice.contains(document.activeElement)) button.focus({preventScroll:true});
+    const restoreFocus = !showNotice && notice.contains(document.activeElement);
     notice.hidden = !showNotice;
+    if (restoreFocus) button.focus({preventScroll:true});
   }
   function create() {
     const Audio = window.AudioContext || window.webkitAudioContext;
