@@ -1,135 +1,212 @@
 (() => {
-  const endpoint = window.portfolioAI?.endpoint?.trim();
-  const preview = new URLSearchParams(location.search).has('assistant-preview');
-  if (!endpoint && !preview) return;
-  const panel = document.createElement('dialog');
-  panel.id = 'portfolio-assistant';
-  panel.setAttribute('aria-labelledby','assistant-title');
+  const panel = document.createElement("dialog");
+  panel.id = "portfolio-assistant";
+  panel.setAttribute("aria-labelledby", "assistant-title");
   panel.innerHTML = `
-    <header class="assistant-head"><div><p class="assistant-eyebrow">Portfolio assistant</p><h2 id="assistant-title">Ask about Sriram.</h2></div><button type="button" class="assistant-close" aria-label="Close assistant">×</button></header>
+    <header class="assistant-head"><div><p class="assistant-eyebrow">On-device AI</p><h2 id="assistant-title">Ask about Sriram.</h2></div><button type="button" class="assistant-close" aria-label="Close assistant">×</button></header>
     <div class="assistant-scroll">
       <p class="assistant-intro">Explore the experience, decisions and work behind this portfolio.</p>
-      <div class="assistant-starters" aria-label="Suggested questions">
-        <button type="button">What is his backend experience?</button>
-        <button type="button">How does Folio work?</button>
-        <button type="button">What makes Speedway work offline?</button>
-      </div>
+      <div class="assistant-load"><p>Runs on your device. First use downloads the AI model and runtime, then caches them in this browser. No account needed.</p><button type="button" class="assistant-load-button">Load free AI</button></div>
+      <div class="assistant-starters" aria-label="Suggested questions"><button type="button">What is his backend experience?</button><button type="button">How does Folio work?</button><button type="button">What makes Speedway work offline?</button></div>
       <div class="assistant-conversation" role="log" aria-label="Questions and answers" aria-live="polite" aria-relevant="additions"></div>
+      <nav class="assistant-reference" aria-label="Portfolio sources"><p>Portfolio sources</p><a href="#work">Experience ↗</a><a href="#knowledge-search">Folio ↗</a><a href="#speedway-pos">Speedway POS ↗</a><a href="#stack">Toolkit ↗</a><a href="#contact">Contact ↗</a></nav>
     </div>
     <div class="assistant-compose"><p class="assistant-status" role="status"></p>
       <form><label for="assistant-question">Your question</label><div class="assistant-input-row"><textarea id="assistant-question" rows="2" maxlength="800" placeholder="Ask about a project or skill…" required></textarea><button class="assistant-send" type="submit" aria-label="Send question">↑</button></div></form>
-      <p class="assistant-disclosure">Answers use published portfolio information and may contain mistakes. Questions are sent to OpenAI. Avoid sharing private information.</p>
+      <p class="assistant-disclosure">AI selects approved portfolio excerpts. Check the linked source for context. Questions stay on this device.</p>
       <button type="button" class="assistant-clear">Clear conversation</button>
     </div>`;
   document.body.append(panel);
-  const launch = document.createElement('button');
-  launch.type = 'button';
-  launch.className = 'assistant-launch';
-  launch.textContent = 'Ask AI';
-  launch.setAttribute('aria-haspopup','dialog');
-  launch.setAttribute('aria-controls',panel.id);
-  document.querySelector('.nav-inner').append(launch);
-  const form = panel.querySelector('form');
-  const input = panel.querySelector('textarea');
-  const log = panel.querySelector('[role="log"]');
-  const status = panel.querySelector('.assistant-status');
-  const send = panel.querySelector('.assistant-send');
-  const starters = [...panel.querySelectorAll('.assistant-starters button')];
-  let active = null;
-  let returnTarget = launch;
-  function setBusy(busy) {
-    send.disabled = busy || !endpoint;
-    starters.forEach(button=>button.disabled = busy || !endpoint);
-    input.readOnly = busy || !endpoint;
-    form.setAttribute('aria-busy',String(busy));
+  const launch = document.createElement("button");
+  launch.type = "button";
+  launch.className = "assistant-launch";
+  launch.textContent = "Ask AI";
+  launch.setAttribute("aria-haspopup", "dialog");
+  launch.setAttribute("aria-controls", panel.id);
+  document.querySelector(".nav-inner").append(launch);
+  const form = panel.querySelector("form"),
+    input = panel.querySelector("textarea");
+  const log = panel.querySelector('[role="log"]'),
+    status = panel.querySelector(".assistant-status");
+  const send = panel.querySelector(".assistant-send");
+  const loadButton = panel.querySelector(".assistant-load-button"),
+    loadBox = panel.querySelector(".assistant-load");
+  const starters = [...panel.querySelectorAll(".assistant-starters button")];
+  let worker = null,
+    ready = false,
+    busy = false,
+    timer,
+    returnTarget = launch;
+  let loadGeneration = 0;
+  function controls() {
+    send.disabled = !ready || busy;
+    starters.forEach((button) => (button.disabled = !ready || busy));
+    input.readOnly = !ready || busy;
+    form.setAttribute("aria-busy", String(busy));
   }
-  function restoreStatus() {
-    status.textContent = endpoint ? '' : 'Preview · AI connection pending';
-    setBusy(false);
+  function stop() {
+    loadGeneration++;
+    clearTimeout(timer);
+    worker?.terminate();
+    worker = null;
+    ready = false;
+    busy = false;
+    loadBox.hidden = false;
+    loadButton.disabled = false;
+    controls();
   }
-  function cancel() {
-    active?.abort();
-    active = null;
-    restoreStatus();
-  }
-  launch.addEventListener('click',()=>{
+  launch.addEventListener("click", () => {
     returnTarget = launch;
     panel.showModal();
-    document.documentElement.classList.add('assistant-open');
-    restoreStatus();
-    (endpoint ? input : panel.querySelector('.assistant-close')).focus();
+    document.documentElement.classList.add("assistant-open");
+    status.textContent = "";
+    if (!window.Worker || !window.WebAssembly) {
+      status.textContent =
+        "This browser cannot run the local model. Explore the portfolio sources, or try an updated browser.";
+      loadButton.disabled = true;
+    }
+    panel.querySelector(".assistant-close").focus();
   });
-  panel.querySelector('.assistant-close').addEventListener('click',()=>panel.close());
-  panel.addEventListener('close',()=>{
-    cancel();
-    document.documentElement.classList.remove('assistant-open');
-    returnTarget.focus({preventScroll:true});
+  panel
+    .querySelector(".assistant-close")
+    .addEventListener("click", () => panel.close());
+  panel.addEventListener("close", () => {
+    stop();
+    document.documentElement.classList.remove("assistant-open");
+    returnTarget.focus({ preventScroll: true });
   });
-  panel.querySelector('.assistant-clear').addEventListener('click',()=>{
-    cancel(); log.replaceChildren(); input.value=''; input.focus();
+  panel.querySelector(".assistant-clear").addEventListener("click", () => {
+    if (busy) stop();
+    log.replaceChildren();
+    input.value = "";
+    status.textContent = "";
+    input.focus();
   });
+  function navigate(link) {
+    returnTarget = document.querySelector(link.hash);
+    returnTarget.setAttribute("tabindex", "-1");
+    panel.close();
+  }
+  panel
+    .querySelectorAll(".assistant-reference a")
+    .forEach((link) => link.addEventListener("click", () => navigate(link)));
   function addMessage(label, text) {
-    const article = document.createElement('article');
-    article.className = 'assistant-message';
-    const name = document.createElement('p');
-    name.className = 'assistant-speaker'; name.textContent = label;
-    const content = document.createElement('p');
+    const article = document.createElement("article");
+    article.className = "assistant-message";
+    const name = document.createElement("p");
+    name.className = "assistant-speaker";
+    name.textContent = label;
+    const content = document.createElement("p");
     content.textContent = text;
-    article.append(name, content); log.append(article);
-    // Bound DOM growth without persisting the visitor's conversation.
+    article.append(name, content);
+    log.append(article);
     while (log.children.length > 20) log.firstElementChild.remove();
     return article;
   }
-  const sourceTargets = new Set(['#work','#knowledge-search','#speedway-pos','#stack','#contact','#life']);
-  async function ask(question) {
-    if (active || !endpoint || !question.trim()) return;
-    const controller = new AbortController();
-    active = controller; setBusy(true);
-    addMessage('You',question.trim());
-    status.textContent = 'Reading portfolio sources…';
-    const timer = setTimeout(()=>controller.abort(),30000);
-    try {
-      const response = await fetch(endpoint,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({question:question.trim()}),signal:controller.signal,
-        credentials:'omit'
-      });
-      const result = await response.json();
-      if (!response.ok) throw new Error(response.status===429 ? 'Please wait a minute before asking again.' : 'The assistant is unavailable. Try again shortly.');
-      if (typeof result.answer !== 'string' || !Array.isArray(result.sources)) throw new Error('The answer could not be displayed. Please try again.');
-      if (active !== controller) return;
-      const article = addMessage('Portfolio assistant',result.answer);
-      const links = document.createElement('div');
-      links.className = 'assistant-sources';
-      result.sources.forEach(source=>{
-        if (!sourceTargets.has(source.href) || typeof source.title !== 'string') return;
-        const link = document.createElement('a');
-        link.href = source.href; link.textContent = source.title + ' ↗';
-        link.addEventListener('click',()=>{
-          const section = document.querySelector(source.href);
-          returnTarget = section;
-          panel.close();
-          section.setAttribute('tabindex','-1');
-          section.focus({preventScroll:true});
-        });
-        links.append(link);
-      });
-      article.append(links);
-      input.value = '';
-      status.textContent = '';
-      article.scrollIntoView({block:'nearest'});
-    } catch (error) {
-      if (active !== controller) return;
-      status.textContent = error.name === 'AbortError' ? 'That took too long. Your question is ready to retry.' : error.message;
-    } finally {
-      clearTimeout(timer);
-      if (active === controller) {active=null;setBusy(false);}
-    }
+  function failure(text) {
+    stop();
+    status.textContent = text;
   }
-  form.addEventListener('submit',event=>{event.preventDefault();ask(input.value);});
-  input.addEventListener('keydown',event=>{
-    if (event.key==='Enter' && !event.shiftKey && !event.isComposing) {event.preventDefault();form.requestSubmit();}
+  loadButton.addEventListener("click", async () => {
+    const generation = ++loadGeneration;
+    loadButton.disabled = true;
+    busy = true;
+    controls();
+    status.textContent = "Checking this device…";
+    try {
+      if (!panel.open || generation !== loadGeneration) return;
+      worker = new Worker(
+        new URL("portfolio-v3-assets/assistant-worker.js", document.baseURI),
+        { type: "module" },
+      );
+      busy = true;
+      controls();
+      timer = setTimeout(
+        () =>
+          failure(
+            "The download took too long. Check your connection and try loading again.",
+          ),
+        300000,
+      );
+      worker.onerror = () =>
+        failure(
+          "AI could not load on this device. Try again or explore the portfolio sources.",
+        );
+      worker.onmessage = ({ data }) => {
+        if (data.type === "progress") status.textContent = data.text;
+        if (data.type === "ready") {
+          clearTimeout(timer);
+          ready = true;
+          busy = false;
+          loadBox.hidden = true;
+          status.textContent = "Ready · Running on your device";
+          controls();
+          input.focus();
+        }
+        if (data.type === "answer") {
+          clearTimeout(timer);
+          busy = false;
+          controls();
+          status.textContent = "";
+          input.value = "";
+          const article = addMessage("From the portfolio", data.answer);
+          if (
+            data.source &&
+            [
+              "#work",
+              "#knowledge-search",
+              "#speedway-pos",
+              "#stack",
+              "#contact",
+              "#life",
+            ].includes(data.source.href)
+          ) {
+            const link = document.createElement("a");
+            link.className = "assistant-answer-source";
+            link.href = data.source.href;
+            link.textContent = data.source.title + " ↗";
+            link.addEventListener("click", () => navigate(link));
+            article.append(link);
+          }
+          article.scrollIntoView({ block: "nearest" });
+        }
+        if (data.type === "error") failure(data.text);
+      };
+      worker.postMessage({ type: "load" });
+    } catch {
+      failure("AI could not load. Check your connection and try again.");
+    }
   });
-  starters.forEach(button=>button.addEventListener('click',()=>{input.value=button.textContent;ask(input.value);}));
-  restoreStatus();
+  function ask(question) {
+    if (!ready || busy || !question.trim()) return;
+    busy = true;
+    controls();
+    addMessage("You", question.trim());
+    status.textContent = "Finding portfolio information on your device…";
+    timer = setTimeout(
+      () =>
+        failure(
+          "This device is taking too long. Reload the model to retry, or use the portfolio sources.",
+        ),
+      90000,
+    );
+    worker.postMessage({ type: "ask", question: question.trim() });
+  }
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    ask(input.value);
+  });
+  input.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" && !event.shiftKey && !event.isComposing) {
+      event.preventDefault();
+      form.requestSubmit();
+    }
+  });
+  starters.forEach((button) =>
+    button.addEventListener("click", () => {
+      input.value = button.textContent;
+      ask(input.value);
+    }),
+  );
+  controls();
 })();

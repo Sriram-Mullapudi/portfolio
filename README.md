@@ -192,7 +192,26 @@ The fixture server supports byte ranges to match normal video hosting.
 
 ## Portfolio assistant
 
-The optional Ask AI panel is implemented with a separate server endpoint.
-See [AI setup](ai-service/README.md) for activation and verification.
-Use ?assistant-preview to review the unconfigured interface. It is hidden
-from normal visitors until assistant-config.js contains the backend URL.
+Ask AI uses Transformers.js 3.7.2 and quantized Xenova/all-MiniLM-L6-v2 in a
+module worker. It performs semantic matching against curated example questions,
+then shows the matching approved portfolio excerpt and its source link.
+It does not generate open-ended answers or infer new biographical facts.
+
+No API account, key, backend, or paid inference is needed. Visitors explicitly
+load the model and runtime, which are cached where the browser supports it.
+No AI files download on page load. Closing the panel terminates the worker.
+WebAssembly and module workers are required; WebGPU is not needed.
+
+Normalized embeddings are compared with cosine similarity. Matches below 0.55
+and matches to unsupported-topic examples return a no-answer message.
+Topic selection can still be wrong. Each question is independent.
+Update portfolio-v3-assets/assistant-sources.json when portfolio facts change.
+Example questions are maintained in assistant-worker.js.
+
+Questions remain in the browser. Runtime/model files download from jsDelivr
+and Hugging Face. Questions and source text are not sent to an AI API.
+Browser tests cover real semantic matches and simulated loading/error states.
+
+References:
+https://huggingface.co/Xenova/all-MiniLM-L6-v2
+https://huggingface.co/docs/transformers.js/api/pipelines
