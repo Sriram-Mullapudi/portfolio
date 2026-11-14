@@ -31,6 +31,12 @@
     [...navigation.children].forEach((button, i) => {
       if (i === current) button.setAttribute('aria-current', 'step');
       else button.removeAttribute('aria-current');
+      const start = items[i][0];
+      const end = items[i + 1]?.[0] ?? player.duration;
+      const progress = Number.isFinite(end) && end > start
+        ? Math.min(1, Math.max(0, (player.currentTime - start) / (end - start))) : 0;
+      button.style.setProperty('--chapter-progress', progress);
+      button.classList.toggle('chapter-complete', Number.isFinite(end) && player.currentTime >= end);
     });
     replay.hidden = !player.ended;
   }
@@ -42,7 +48,11 @@
       const number = document.createElement('span');
       number.textContent = '0' + (i + 1); number.setAttribute('aria-hidden', 'true');
       const label = document.createElement('span'); label.textContent = title;
-      button.append(number, label);
+      const timestamp = document.createElement('span');
+      timestamp.className = 'chapter-time';
+      timestamp.textContent = '0:' + String(Math.floor(time)).padStart(2, '0');
+      timestamp.setAttribute('aria-hidden', 'true');
+      button.append(number, label, timestamp);
       button.addEventListener('click', () => seek(time));
       navigation.append(button);
     });

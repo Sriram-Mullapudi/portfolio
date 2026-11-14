@@ -173,3 +173,12 @@ html.cinema-open{overflow:hidden}
  .music-notice strong{font-size:14px}.music-notice p{margin:2px 0;font-size:12px}.music-notice-actions{gap:4px}.music-notice-actions button{padding-inline:10px}
  .portfolio-sound .ambient-control{justify-content:space-between}.portfolio-sound:has(.music-notice:not([hidden])) .ambient-control{display:none}
 }
+
+/* Playback progress belongs to the chapter it describes. */
+.cinema-chapters button{position:relative;overflow:hidden;align-items:baseline;padding-bottom:17px}
+.cinema-chapters button:after{content:"";position:absolute;bottom:0;left:0;width:100%;height:2px;background:#e8a0a7;transform:scaleX(var(--chapter-progress,0));transform-origin:left}
+.cinema-chapters .chapter-time{margin-left:auto;color:#94a1ae;font:11px var(--mono,monospace);white-space:nowrap}
+.cinema-chapters button.chapter-complete{border-color:#ffffff30}
+#product-cinema{box-shadow:0 28px 100px #0009;background:linear-gradient(150deg,#18212b,#0d141c 65%)}
+#product-cinema video{border:1px solid #ffffff18;border-radius:7px}
+@media(max-width:700px){.cinema-chapters .chapter-time{margin-left:0}.cinema-chapters button{gap:4px}}
