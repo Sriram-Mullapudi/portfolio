@@ -182,3 +182,9 @@ html.cinema-open{overflow:hidden}
 #product-cinema{box-shadow:0 28px 100px #0009;background:linear-gradient(150deg,#18212b,#0d141c 65%)}
 #product-cinema video{border:1px solid #ffffff18;border-radius:7px}
 @media(max-width:700px){.cinema-chapters .chapter-time{margin-left:0}.cinema-chapters button{gap:4px}}
+
+@media(min-width:701px){
+ .music-notice{left:auto;right:20px;bottom:20px;width:300px;padding:14px 16px;border-radius:10px}
+ .music-notice strong{font-size:14px}.music-notice p{margin:4px 0 12px;font-size:12px}
+ .portfolio-sound:has(.music-notice:not([hidden])) .ambient-control{display:none}
+}
