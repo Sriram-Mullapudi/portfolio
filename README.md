@@ -189,3 +189,10 @@ Run `node scripts/test_video_recovery.cjs` with the same Playwright setup to
 exercise blocked media requests over a local HTTP server, recovery visibility,
 download targets, successful retry, dialog reset, and short-versus-full durations.
 The fixture server supports byte ranges to match normal video hosting.
+
+## Portfolio assistant
+
+The optional Ask AI panel is implemented with a separate server endpoint.
+See [AI setup](ai-service/README.md) for activation and verification.
+Use ?assistant-preview to review the unconfigured interface. It is hidden
+from normal visitors until assistant-config.js contains the backend URL.
