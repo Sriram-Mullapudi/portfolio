@@ -276,3 +276,6 @@ html.assistant-open {
   color: #e8b3bc;
   text-underline-offset: 4px;
 }
+
+.assistant-load progress{width:100%;height:4px;margin:18px 0 8px;accent-color:#e8a0a7}
+.assistant-cancel-load{min-height:40px;padding:6px 0;background:transparent;border:0;color:#c7ced8;font:12px var(--body,sans-serif);text-decoration:underline;text-underline-offset:4px;cursor:pointer}

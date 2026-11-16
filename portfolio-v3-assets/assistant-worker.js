@@ -54,6 +54,7 @@ const unknown =
 self.onmessage = async ({ data }) => {
   try {
     if (data.type === "load") {
+      let lastPercent = -1;
       const response = await fetch("./assistant-sources.json");
       if (!response.ok) throw new Error();
       sources = await response.json();
@@ -63,8 +64,13 @@ self.onmessage = async ({ data }) => {
         {
           dtype: "q8",
           device: "wasm",
-          progress_callback: (progress) =>
-            self.postMessage({ type: "progress", text: "Loading local AI…" }),
+          progress_callback: (progress) => {
+            if (!progress.file?.endsWith(".onnx") || !Number.isFinite(progress.progress)) return;
+            const percent = Math.min(100, Math.max(0, Math.floor(progress.progress)));
+            if (percent === lastPercent) return;
+            lastPercent = percent;
+            self.postMessage({type: "progress", percent, text: "Downloading AI model · " + percent + "%"});
+          },
         },
       );
       entries = sources.flatMap((source) =>

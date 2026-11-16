@@ -38,6 +38,21 @@
     timer,
     returnTarget = launch;
   let loadGeneration = 0;
+  const progressBar = document.createElement("progress");
+  progressBar.max = 100;
+  progressBar.hidden = true;
+  progressBar.setAttribute("aria-label", "AI model download");
+  const cancelLoad = document.createElement("button");
+  cancelLoad.type = "button";
+  cancelLoad.className = "assistant-cancel-load";
+  cancelLoad.textContent = "Cancel download";
+  cancelLoad.hidden = true;
+  loadBox.append(progressBar, cancelLoad);
+  cancelLoad.addEventListener("click", () => {
+    stop();
+    status.textContent = "Loading stopped. You can load the AI whenever you’re ready.";
+    loadButton.focus();
+  });
   function controls() {
     send.disabled = !ready || busy;
     starters.forEach((button) => (button.disabled = !ready || busy));
@@ -53,6 +68,8 @@
     busy = false;
     loadBox.hidden = false;
     loadButton.disabled = false;
+    progressBar.hidden = true;
+    cancelLoad.hidden = true;
     controls();
   }
   launch.addEventListener("click", () => {
@@ -110,13 +127,16 @@
   loadButton.addEventListener("click", async () => {
     const generation = ++loadGeneration;
     loadButton.disabled = true;
+    progressBar.removeAttribute("value");
+    progressBar.hidden = false;
+    cancelLoad.hidden = false;
     busy = true;
     controls();
-    status.textContent = "Checking this device…";
+    status.textContent = "Loading AI runtime…";
     try {
       if (!panel.open || generation !== loadGeneration) return;
       worker = new Worker(
-        new URL("portfolio-v3-assets/assistant-worker.js", document.baseURI),
+        new URL("portfolio-v3-assets/assistant-worker.js?v=20261115", document.baseURI),
         { type: "module" },
       );
       busy = true;
@@ -133,7 +153,17 @@
           "AI could not load on this device. Try again or explore the portfolio sources.",
         );
       worker.onmessage = ({ data }) => {
-        if (data.type === "progress") status.textContent = data.text;
+        if (generation !== loadGeneration) return;
+        if (data.type === "progress") {
+          if (Number.isFinite(data.percent)) {
+            progressBar.value = data.percent;
+            // Announce milestones while the visual meter updates every percent.
+            if (data.percent % 10 === 0) status.textContent = data.text;
+          } else {
+            progressBar.removeAttribute("value");
+            status.textContent = data.text;
+          }
+        }
         if (data.type === "ready") {
           clearTimeout(timer);
           ready = true;
