@@ -19,21 +19,22 @@ const nav=q('.nav'),sections=['work','projects','stack','life','contact'].map(id
 function updateScroll(){scrollFrame=0;const range=document.documentElement.scrollHeight-innerHeight;progress.style.transform=`scaleX(${range>0?Math.min(1,Math.max(0,scrollY/range)):0})`;nav.classList.toggle('is-scrolled',scrollY>16);let current='';for(const section of sections)if(section.getBoundingClientRect().top<=innerHeight*.38)current=section.id;qa('.nav-links a,.menu-items a').forEach(a=>{if(a.hash==='#'+current)a.setAttribute('aria-current','location');else a.removeAttribute('aria-current')})}
 function scheduleScroll(){if(!scrollFrame)scrollFrame=requestAnimationFrame(updateScroll)}
 addEventListener('scroll',scheduleScroll,{passive:true});addEventListener('resize',scheduleScroll);new ResizeObserver(scheduleScroll).observe(document.body);updateScroll();
-// Repeat section entrances from the edge they enter, without hiding content in CSS.
+// Introduce each content group once. Returning readers keep their place.
 const scrollTargets=qa('.selected-heading,.section-head,.job,.project>summary,.project-heading,.toolkit-intro,.skill-row,.photo-heading,.photo-intro,.about-line,.contact-grid>div');
-const scrollState=new WeakMap(),scrollAnimations=new Map();
+const scrollState=new WeakMap(),scrollAnimations=new Map(),revealed=new WeakSet();
 function cancelScrollReveal(el){const a=scrollAnimations.get(el);if(a){a.cancel();scrollAnimations.delete(el)}}
 const scrollReveal=new IntersectionObserver(entries=>{
  for(const entry of entries){
   const el=entry.target,previous=scrollState.get(el);
   if(!entry.isIntersecting){scrollState.set(el,false);cancelScrollReveal(el);continue}
-  if(entry.intersectionRatio<.08||previous===true)continue;
+  if(entry.intersectionRatio<.08||previous===true||revealed.has(el))continue;
+  revealed.add(el);
   scrollState.set(el,true);
   // Leave content already on screen at page load (or a restored scroll position) still.
   if(previous===undefined||reduced.matches||document.hidden||el.contains(document.activeElement))continue;
-  const distance=innerWidth<600?24:40;
+  const distance=innerWidth<600?12:20;
   const from=entry.boundingClientRect.top>innerHeight/2?distance:-distance;
-  const a=animate(el,[{opacity:.2,translate:`0 ${from}px`},{opacity:1,translate:'0 0'}],{duration:720,easing:'cubic-bezier(.22,1,.36,1)'});
+  const a=animate(el,[{opacity:.2,translate:`0 ${from}px`},{opacity:1,translate:'0 0'}],{duration:520,easing:'cubic-bezier(.22,1,.36,1)'});
   if(a){a.id='scroll-reveal';scrollAnimations.set(el,a);a.finished.catch(()=>{}).finally(()=>{if(scrollAnimations.get(el)===a)scrollAnimations.delete(el)})}
  }
 },{threshold:[0,.08]});
@@ -100,12 +101,13 @@ const boardEntrance = new IntersectionObserver(entries => {
     {duration:700,delay:i*550,easing:'linear'}, board));
 }, {threshold:.5});
 boardEntrance.observe(board);
-// Five decorative connected layers map to the five existing toolkit categories.
-const toolkit=q('.toolkit-layout'),rows=qa('.skill-row',toolkit),layerSvg=svgEl('svg',{'class':'connected-layers','viewBox':'0 0 300 170','aria-hidden':'true'});
-const wire=svgEl('path',{'class':'stack-wire',d:'M24 20 V150'}),pulse=svgEl('path',{'class':'stack-pulse',d:'M24 20 V150',pathLength:100});layerSvg.append(wire,pulse);
-const layers=rows.map((row,i)=>{const y=10+i*31;const line=svgEl('path',{'class':'stack-wire',d:`M24 ${y+10} H56`});const dot=svgEl('circle',{'class':'stack-dot',cx:24,cy:y+10,r:3});const bar=svgEl('path',{'class':'stack-layer',d:`M56 ${y} H${270-i*14} L${284-i*14} ${y+10} L${270-i*14} ${y+20} H56 Z`});layerSvg.append(line,dot,bar);return{dot,bar}});
-q('.toolkit-intro').insertBefore(layerSvg,q('#skill-detail'));
-qa('.skill').forEach(button=>button.addEventListener('click',()=>{const pressed=button.getAttribute('aria-pressed')==='true',selected=pressed?rows.indexOf(button.closest('.skill-row')):-1;toolkit.classList.toggle('skills-has-selection',pressed);rows.forEach((row,i)=>{row.classList.toggle('layer-selected',i===selected);layers[i].bar.classList.toggle('layer-selected',i===selected);layers[i].dot.classList.toggle('layer-selected',i===selected)});stop(toolkit);if(pressed){animate(pulse,[{strokeDashoffset:100,opacity:0},{opacity:1,offset:.1},{strokeDashoffset:-100,opacity:0}],{duration:700,easing:'linear'},toolkit);animate(layers[selected].bar,[{translate:'0 0'},{translate:'4px 0',offset:.45},{translate:'0 0'}],{duration:500},toolkit)}}));
+// Emphasize the selected technology in its own context.
+const toolkit=q('.toolkit-layout'),rows=qa('.skill-row',toolkit);
+qa('.skill').forEach(button=>button.addEventListener('click',()=>{
+ const pressed=button.getAttribute('aria-pressed')==='true';
+ toolkit.classList.toggle('skills-has-selection',pressed);
+ rows.forEach(row=>row.classList.toggle('layer-selected',pressed&&row===button.closest('.skill-row')));
+}));
 // Mouse drag is optional. Touch keeps native scrolling; vertical wheel is never intercepted.
 const strip=q('#filmstrip');let drag=null,ignoreClickUntil=0;
 qa('.frame img').forEach(img=>img.draggable=false);
