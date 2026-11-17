@@ -5,6 +5,7 @@
   const started = new WeakSet();
   const revisions = new WeakMap();
   const recovery = new WeakMap();
+  const resizePlayback = new WeakMap();
   const dialog = document.querySelector('#product-cinema');
   const player = dialog.querySelector('video');
   const chapters = {
@@ -20,6 +21,7 @@
   document.querySelector('#cinema-description').before(navigation, replay);
   let pendingSeek = null;
   function seek(time) {
+    resizePlayback.delete(player);
     if (player.readyState < 1) pendingSeek = time;
     else { pendingSeek = null; player.currentTime = time; }
     play(player);
@@ -77,6 +79,7 @@
     });
   }
   function configure(video, film) {
+    resizePlayback.delete(video);
     const revision = (revisions.get(video) || 0) + 1;
     revisions.set(video, revision);
     const preview = video.classList.contains('product-video');
@@ -105,6 +108,13 @@
     video.load();
   }
   for (const video of [...videos, player]) {
+    video.addEventListener('loadedmetadata', () => {
+      const state = resizePlayback.get(video);
+      if (!state || state.revision !== revisions.get(video)) return;
+      resizePlayback.delete(video);
+      video.currentTime = Math.min(state.time, Number.isFinite(video.duration) ? video.duration : state.time);
+      if (state.playing && !document.hidden && (video === player ? dialog.open : !dialog.open)) play(video);
+    });
     const box = document.createElement('div');
     box.className = 'video-recovery'; box.hidden = true;
     const message = document.createElement('p');
@@ -158,15 +168,17 @@
   });
   phone.addEventListener('change', () => {
     for (const video of [...videos, ...(dialog.open ? [player] : [])]) {
-      const time = video.currentTime;
-      video.addEventListener('loadedmetadata', () => {
-        video.currentTime = Math.min(time, Number.isFinite(video.duration) ? video.duration : time);
-      }, {once:true});
-      configure(video, video.dataset.film); started.add(video);
+      const state = resizePlayback.get(video) || {
+        time: video.currentTime,
+        playing: !video.paused && !video.ended
+      };
+      configure(video, video.dataset.film);
+      resizePlayback.set(video, {...state, revision: revisions.get(video)});
     }
   });
   dialog.querySelector('.cinema-close').addEventListener('click', () => dialog.close());
   dialog.addEventListener('close', () => {
+    resizePlayback.delete(player);
     document.documentElement.classList.remove('cinema-open');
     pendingSeek = null; navigation.replaceChildren(); replay.hidden = true;
     revisions.set(player, (revisions.get(player) || 0) + 1);
