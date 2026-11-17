@@ -10,6 +10,7 @@
   const points = [];
   const paths = [];
   const nodes = [];
+  const folds = [];
   let width = 0,
     height = 0,
     frame = 0,
@@ -30,6 +31,75 @@
     };
   }
   for (const side of [-1, 1]) {
+    // Smooth frontal folds make the two hemispheres readable at small sizes.
+    const contours = [
+      [
+        [0.12, -0.49],
+        [0.33, -0.58],
+        [0.59, -0.46],
+        [0.74, -0.24],
+        [0.77, 0.03],
+        [0.68, 0.32],
+        [0.46, 0.52],
+        [0.22, 0.43],
+        [0.12, 0.24],
+      ],
+      [
+        [0.13, -0.35],
+        [0.3, -0.43],
+        [0.51, -0.33],
+        [0.59, -0.17],
+        [0.49, -0.08],
+        [0.3, -0.16],
+        [0.14, -0.08],
+      ],
+      [
+        [0.14, 0.07],
+        [0.31, 0.01],
+        [0.5, 0.12],
+        [0.65, 0.05],
+        [0.68, 0.17],
+        [0.55, 0.34],
+        [0.36, 0.27],
+        [0.18, 0.35],
+      ],
+      [
+        [0.21, -0.26],
+        [0.35, -0.3],
+        [0.45, -0.22],
+      ],
+      [
+        [0.23, 0.16],
+        [0.37, 0.18],
+        [0.48, 0.13],
+      ],
+    ];
+    for (const contour of contours) {
+      const fold = [];
+      for (let i = 0; i < contour.length - 1; i++) {
+        const a = contour[Math.max(0, i - 1)],
+          b = contour[i];
+        const c = contour[i + 1],
+          d = contour[Math.min(contour.length - 1, i + 2)];
+        for (let step = 0; step <= 12; step++) {
+          const t = step / 12;
+          const xy = b.map(
+            (value, axis) =>
+              0.5 *
+              (2 * value +
+                (-a[axis] + c[axis]) * t +
+                (2 * a[axis] - 5 * value + 4 * c[axis] - d[axis]) * t * t +
+                (-a[axis] + 3 * value - 3 * c[axis] + d[axis]) * t * t * t),
+          );
+          fold.push({
+            x: side * xy[0],
+            y: xy[1],
+            z: 0.37 + 0.06 * Math.cos(xy[1] * 4),
+          });
+        }
+      }
+      folds.push(fold);
+    }
     for (let line = 1; line < 12; line++) {
       const path = [];
       for (let step = 0; step <= 72; step++) {
@@ -99,10 +169,10 @@
         else context.lineTo(v.x, v.y);
       });
       context.strokeStyle =
-        index % 3 === 0 ? "rgba(165,225,216,.65)" : "rgba(184,149,211,.36)";
-      context.lineWidth = index % 3 === 0 ? 1.15 : 0.65;
+        index % 3 === 0 ? "rgba(165,225,216,.18)" : "rgba(184,149,211,.12)";
+      context.lineWidth = 0.55;
       context.shadowColor = "#9be1d2";
-      context.shadowBlur = index % 3 === 0 ? 4 : 0;
+      context.shadowBlur = 0;
       context.stroke();
       context.shadowBlur = 0;
     }
@@ -117,25 +187,47 @@
       context.strokeStyle = "rgba(141,214,208,.2)";
       context.stroke();
     }
-    const pulse = elapsed < signalUntil;
-    projected.forEach((p, i) => {
-      const lit = pulse && (elapsed * 0.004 + i * 0.44) % (Math.PI * 2) < 1.1;
-      const radius = lit ? 3.4 : 1.8 + (p.z + 0.5) * 0.65;
+    for (const fold of folds) {
       context.beginPath();
-      context.arc(p.x, p.y, radius, 0, Math.PI * 2);
-      context.shadowColor = lit ? "#bbf5e4" : "#b7a0d3";
-      context.shadowBlur = lit ? 13 : 5;
-      context.fillStyle = lit ? "#c8ffed" : p.z > 0 ? "#b8e4d9" : "#867a9c";
-      context.fill();
+      fold.forEach((point, i) => {
+        const p = project(point);
+        if (i === 0) context.moveTo(p.x, p.y);
+        else context.lineTo(p.x, p.y);
+      });
+      context.strokeStyle = "rgba(154,232,218,.76)";
+      context.lineWidth = 1.4;
+      context.lineCap = "round";
+      context.shadowColor = "#72cdbb";
+      context.shadowBlur = 6;
+      context.stroke();
       context.shadowBlur = 0;
-    });
+    }
+    const pulse = elapsed < signalUntil;
+    projected
+      .map((p, i) => ({ ...p, index: i }))
+      .sort((a, b) => a.z - b.z)
+      .forEach((p) => {
+        const i = p.index;
+        const lit = pulse && (elapsed * 0.004 + i * 0.44) % (Math.PI * 2) < 1.1;
+        const radius = lit ? 3.4 : 1.8 + (p.z + 0.5) * 0.65;
+        context.beginPath();
+        context.arc(p.x, p.y, radius, 0, Math.PI * 2);
+        context.shadowColor = lit ? "#bbf5e4" : "#b7a0d3";
+        context.shadowBlur = lit ? 10 : 3;
+        context.fillStyle = lit ? "#c8ffed" : p.z > 0 ? "#b8e4d9" : "#867a9c";
+        context.fill();
+        context.shadowBlur = 0;
+      });
   }
   function tick(time) {
     frame = 0;
     if (!visible || paused || document.hidden) return;
-    elapsed += lastTime ? Math.min(time - lastTime, 50) : 0;
-    lastTime = time;
-    draw();
+    const delta = lastTime ? time - lastTime : 1000 / 30;
+    if (delta >= 1000 / 30) {
+      elapsed += Math.min(delta, 100);
+      lastTime = time;
+      draw();
+    }
     frame = requestAnimationFrame(tick);
   }
   function sync() {
