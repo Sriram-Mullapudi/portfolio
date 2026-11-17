@@ -131,13 +131,13 @@
       const p = nodes[a],
         q = nodes[b];
       const distance = Math.hypot(p.x - q.x, p.y - q.y, p.z - q.z);
-      if (distance < 0.64) points.push([a, b]);
+      if (distance < 0.48) points.push([a, b]);
     }
   }
   function draw() {
     if (!width || !height) return;
     context.clearRect(0, 0, width, height);
-    const angle = 0.18 * Math.sin(elapsed * 0.00025);
+    const angle = 0.1 + 0.14 * Math.sin(elapsed * 0.00018);
     const scale = Math.min(width / 2.3, height / 1.75);
     function project(p) {
       const x = p.x * Math.cos(angle) + p.z * Math.sin(angle);
@@ -145,7 +145,7 @@
       const perspective = 3.8 / (3.8 - depth);
       return {
         x: width / 2 + x * scale * perspective,
-        y: height / 2 + p.y * scale * perspective,
+        y: height / 2 + (p.y + depth * 0.08) * scale * perspective,
         z: depth,
       };
     }
@@ -161,6 +161,41 @@
     glow.addColorStop(1, "rgba(158,112,182,0)");
     context.fillStyle = glow;
     context.fillRect(0, 0, width, height);
+    // Layered translucent surfaces give the folds a shaded volume to sit on.
+    for (const side of [-1, 1]) {
+      context.beginPath();
+      for (let step = 0; step <= 80; step++) {
+        const t = (step / 80) * Math.PI * 2;
+        const edge = project({
+          x: side * 0.42 + 0.435 * Math.cos(t),
+          y: 0.625 * Math.sin(t),
+          z: 0,
+        });
+        if (step === 0) context.moveTo(edge.x, edge.y);
+        else context.lineTo(edge.x, edge.y);
+      }
+      context.closePath();
+      const center = project({ x: side * 0.42, y: 0, z: 0 });
+      const material = context.createRadialGradient(
+        center.x - scale * 0.2,
+        center.y - scale * 0.3,
+        0,
+        center.x,
+        center.y,
+        scale * 0.8,
+      );
+      material.addColorStop(0, "rgba(79,116,113,.55)");
+      material.addColorStop(0.45, "rgba(31,55,57,.7)");
+      material.addColorStop(1, "rgba(11,22,30,.92)");
+      context.fillStyle = material;
+      context.shadowColor = "#050b12";
+      context.shadowBlur = 18;
+      context.fill();
+      context.shadowBlur = 0;
+      context.strokeStyle = "rgba(180,207,202,.24)";
+      context.lineWidth = 0.8;
+      context.stroke();
+    }
     for (const [index, path] of paths.entries()) {
       context.beginPath();
       path.forEach((p, i) => {
@@ -169,7 +204,7 @@
         else context.lineTo(v.x, v.y);
       });
       context.strokeStyle =
-        index % 3 === 0 ? "rgba(165,225,216,.18)" : "rgba(184,149,211,.12)";
+        index % 3 === 0 ? "rgba(165,225,216,.12)" : "rgba(184,149,211,.07)";
       context.lineWidth = 0.55;
       context.shadowColor = "#9be1d2";
       context.shadowBlur = 0;
@@ -184,7 +219,7 @@
       context.beginPath();
       context.moveTo(p.x, p.y);
       context.lineTo(q.x, q.y);
-      context.strokeStyle = "rgba(141,214,208,.2)";
+      context.strokeStyle = "rgba(141,214,208,.12)";
       context.stroke();
     }
     for (const fold of folds) {
@@ -194,13 +229,31 @@
         if (i === 0) context.moveTo(p.x, p.y);
         else context.lineTo(p.x, p.y);
       });
-      context.strokeStyle = "rgba(154,232,218,.76)";
-      context.lineWidth = 1.4;
+      context.strokeStyle = "rgba(10,27,32,.7)";
+      context.lineWidth = 5;
+      context.stroke();
+      context.strokeStyle = "rgba(193,231,220,.82)";
+      context.lineWidth = 1.5;
       context.lineCap = "round";
       context.shadowColor = "#72cdbb";
-      context.shadowBlur = 6;
+      context.shadowBlur = 4;
       context.stroke();
       context.shadowBlur = 0;
+      if (elapsed < signalUntil && !paused) {
+        const progress = 1 - (signalUntil - elapsed) / 1800;
+        const point = project(
+          fold[
+            Math.min(fold.length - 1, Math.floor(progress * (fold.length - 1)))
+          ],
+        );
+        context.beginPath();
+        context.arc(point.x, point.y, 2.6, 0, Math.PI * 2);
+        context.fillStyle = "#e0fff4";
+        context.shadowColor = "#adf5dc";
+        context.shadowBlur = 12;
+        context.fill();
+        context.shadowBlur = 0;
+      }
     }
     const pulse = elapsed < signalUntil;
     projected
@@ -209,7 +262,7 @@
       .forEach((p) => {
         const i = p.index;
         const lit = pulse && (elapsed * 0.004 + i * 0.44) % (Math.PI * 2) < 1.1;
-        const radius = lit ? 3.4 : 1.8 + (p.z + 0.5) * 0.65;
+        const radius = lit ? 2.2 : 1 + (p.z + 0.5) * 0.45;
         context.beginPath();
         context.arc(p.x, p.y, radius, 0, Math.PI * 2);
         context.shadowColor = lit ? "#bbf5e4" : "#b7a0d3";
@@ -263,7 +316,7 @@
   new ResizeObserver(() => {
     const bounds = host.getBoundingClientRect();
     width = bounds.width;
-    height = 220;
+    height = canvas.getBoundingClientRect().height;
     const ratio = Math.min(devicePixelRatio || 1, 2);
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);

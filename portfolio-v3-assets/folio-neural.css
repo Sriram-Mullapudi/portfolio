@@ -1,23 +1,31 @@
 .neural-visual {
-  margin: 8px 0 20px;
+  margin: 12px 0 24px;
   position: relative;
 }
 .neural-visual canvas {
   display: block;
   width: 100%;
-  height: 220px;
+  height: 260px;
 }
 .neural-visual button {
   display: block;
   margin: 0 auto;
   background: transparent;
-  border: 0;
-  border-bottom: 1px solid #ad9bb442;
-  min-height: 36px;
-  padding: 4px 8px;
+  border: 1px solid #ad9bb430;
+  border-radius: 20px;
+  min-height: 40px;
+  padding: 6px 15px;
   color: #c6b5ce;
   font: 11px var(--mono, monospace);
   cursor: pointer;
+}
+@media (max-width: 800px) {
+  .neural-visual canvas {
+    height: 200px;
+  }
+  .neural-visual {
+    margin: 0 0 22px;
+  }
 }
 .neural-visual button:focus-visible {
   outline: 2px solid #e9c4f0;
