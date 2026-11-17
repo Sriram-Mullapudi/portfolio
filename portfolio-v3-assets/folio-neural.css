@@ -1,0 +1,25 @@
+.neural-visual {
+  margin: 8px 0 20px;
+  position: relative;
+}
+.neural-visual canvas {
+  display: block;
+  width: 100%;
+  height: 220px;
+}
+.neural-visual button {
+  display: block;
+  margin: 0 auto;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid #ad9bb442;
+  min-height: 36px;
+  padding: 4px 8px;
+  color: #c6b5ce;
+  font: 11px var(--mono, monospace);
+  cursor: pointer;
+}
+.neural-visual button:focus-visible {
+  outline: 2px solid #e9c4f0;
+  outline-offset: 3px;
+}
