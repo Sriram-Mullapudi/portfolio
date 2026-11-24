@@ -42,6 +42,15 @@
   stage.addEventListener('pointermove', event => {
     if (drag?.id === event.pointerId) rotate(Math.round(drag.angle + (event.clientX - drag.x) * .45));
   });
-  stage.addEventListener('lostpointercapture', () => { drag = null; });
+  function endDrag(event) {
+    if (!drag || (event?.pointerId !== undefined && event.pointerId !== drag.id)) return;
+    const pointerId = drag.id;
+    drag = null;
+    if (stage.hasPointerCapture(pointerId)) stage.releasePointerCapture(pointerId);
+  }
+  stage.addEventListener('pointerup', endDrag);
+  stage.addEventListener('pointercancel', endDrag);
+  stage.addEventListener('lostpointercapture', endDrag);
+  window.addEventListener('blur', () => endDrag());
   controls.hidden = false;
 })();
